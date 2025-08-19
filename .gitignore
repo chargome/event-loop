@@ -4,7 +4,6 @@ dist/
 *.log
 
 # Deno
-deno.lock
 .deno/
 .deno_dir/
 
