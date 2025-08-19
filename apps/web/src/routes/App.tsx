@@ -1,5 +1,11 @@
 import React from "react";
 import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
+import {
   Link,
   Outlet,
   Router,
@@ -9,6 +15,7 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import { EventsPage } from "./EventsPage";
+import { MePage } from "./MePage";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -16,6 +23,15 @@ const rootRoute = createRootRoute({
       <h1>Event Loop</h1>
       <nav style={{ display: "flex", gap: 12 }}>
         <Link to="/">Events</Link>
+        <Link to="/me">Me</Link>
+        <span style={{ marginLeft: "auto" }}>
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+        </span>
       </nav>
       <hr />
       <Outlet />
@@ -29,7 +45,13 @@ const indexRoute = createRoute({
   component: EventsPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const meRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/me",
+  component: MePage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, meRoute]);
 
 export function App() {
   const router = createRouter({ routeTree });
