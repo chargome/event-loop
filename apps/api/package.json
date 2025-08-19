@@ -1,0 +1,12 @@
+{
+  "name": "@event-loop/api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@types/pg": "^8.15.5",
+    "drizzle-kit": "^0.31.4",
+    "drizzle-orm": "^0.44.4",
+    "pg": "^8.16.3"
+  }
+}

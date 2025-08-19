@@ -1,6 +1,9 @@
 {
   "tasks": {
-    "dev": "deno run -A --watch main.ts"
+    "dev": "deno run --env-file -A --watch main.ts",
+    "db:generate": "deno run -A drizzle-kit generate --config ./drizzle.config.ts",
+    "db:migrate": "deno run -A drizzle-kit migrate --config ./drizzle.config.ts",
+    "db:studio": "deno run -A drizzle-kit studio --config ./drizzle.config.ts"
   },
   "lock": true,
   "fmt": {
@@ -11,6 +14,10 @@
   "imports": {
     "@hono/hono": "jsr:@hono/hono@^4",
     "@hono/logger": "jsr:@hono/hono@^4/logger",
-    "@hono/cors": "jsr:@hono/hono@^4/cors"
+    "@hono/cors": "jsr:@hono/hono@^4/cors",
+    "@types/pg": "npm:@types/pg@^8.15.5",
+    "drizzle-kit": "npm:drizzle-kit@^0.31.4",
+    "drizzle-orm": "npm:drizzle-orm@^0.44.4",
+    "pg": "npm:pg@^8.16.3"
   }
 }
