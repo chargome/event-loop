@@ -20,19 +20,21 @@ export function MePage() {
 
   return (
     <div>
-      <h2>Me</h2>
+      <h2 className="text-xl font-medium mb-4">Me</h2>
       <SignedOut>
-        <p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">
           Please sign in <SignInButton />
         </p>
       </SignedOut>
       <SignedIn>
         {isLoading ? (
-          <p>Loading…</p>
+          <p className="text-sm text-gray-500">Loading…</p>
         ) : error ? (
-          <p>Failed to load</p>
+          <p className="text-sm text-red-600">Failed to load</p>
         ) : (
-          <pre>{JSON.stringify(data, null, 2)}</pre>
+          <pre className="rounded-lg border border-gray-200 dark:border-gray-800 p-4 overflow-auto bg-gray-50 dark:bg-gray-900">
+            {JSON.stringify(data, null, 2)}
+          </pre>
         )}
       </SignedIn>
     </div>

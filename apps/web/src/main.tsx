@@ -1,3 +1,4 @@
+import "./index.css";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -19,7 +20,7 @@ if (!publishableKey) {
 
 root.render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={publishableKey}>
+    <ClerkProvider publishableKey={publishableKey ?? ""}>
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>

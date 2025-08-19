@@ -16,25 +16,38 @@ import {
 } from "@tanstack/react-router";
 import { EventsPage } from "./EventsPage";
 import { MePage } from "./MePage";
+import { DarkModeToggle } from "../components/DarkModeToggle";
 
 const rootRoute = createRootRoute({
   component: () => (
-    <div style={{ padding: 16, fontFamily: "system-ui, sans-serif" }}>
-      <h1>Event Loop</h1>
-      <nav style={{ display: "flex", gap: 12 }}>
-        <Link to="/">Events</Link>
-        <Link to="/me">Me</Link>
-        <span style={{ marginLeft: "auto" }}>
+    <div className="container py-6">
+      <header className="flex items-center gap-4">
+        <h1 className="text-2xl font-semibold">Event Loop</h1>
+        <nav className="flex items-center gap-4 ml-auto">
+          <Link
+            to="/"
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Events
+          </Link>
+          <Link
+            to="/me"
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Me
+          </Link>
+          <DarkModeToggle />
           <SignedOut>
             <SignInButton />
           </SignedOut>
           <SignedIn>
             <UserButton />
           </SignedIn>
-        </span>
-      </nav>
-      <hr />
-      <Outlet />
+        </nav>
+      </header>
+      <main className="mt-6">
+        <Outlet />
+      </main>
     </div>
   ),
 });
