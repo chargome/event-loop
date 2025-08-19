@@ -3,15 +3,22 @@ import { logger } from "@hono/logger";
 import { cors } from "@hono/cors";
 import { createDb } from "./db/client.ts";
 import { events } from "./db/schema.ts";
+import { requireAuth, getAuth } from "./auth/clerk.ts";
 
 const app = new Hono();
 
 app.use("*", logger());
 app.use("*", cors());
 
-app.get("/health", (c) => c.json({ status: "ok" }));
+// Public routes
+const publicApi = new Hono();
+publicApi.get("/health", (c) => c.json({ status: "ok" }));
 
-app.get("/db/health", async (c) => {
+// Protected routes (auth required)
+const protectedApi = new Hono();
+protectedApi.use("*", requireAuth);
+
+protectedApi.get("/db/health", async (c) => {
   const databaseUrl = Deno.env.get("DATABASE_URL");
   if (!databaseUrl) {
     return c.json({ ok: false, error: "DATABASE_URL not set" }, 500);
@@ -32,7 +39,7 @@ app.get("/db/health", async (c) => {
   }
 });
 
-app.get("/events", async (c) => {
+protectedApi.get("/events", async (c) => {
   const { db, client } = await createDb();
   try {
     const rows = await db.select().from(events);
@@ -46,9 +53,19 @@ app.get("/events", async (c) => {
   }
 });
 
+// Mount routers
+app.route("/", publicApi);
+app.route("/", protectedApi);
+
 Deno.serve({ port: 8787 }, app.fetch);
 
-app.post("/events", async (c) => {
+protectedApi.get("/me", (c) => {
+  const auth = getAuth(c);
+  if (!auth?.userId) return c.json({ error: "Unauthorized" }, 401);
+  return c.json({ userId: auth.userId });
+});
+
+protectedApi.post("/events", async (c) => {
   const { db, client } = await createDb();
   try {
     const body = await c.req.json();
