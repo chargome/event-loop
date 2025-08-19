@@ -1,0 +1,10 @@
+{
+  "name": "@event-loop/config",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Shared configuration (tsconfig) for Event Loop monorepo",
+  "files": [
+    "tsconfig"
+  ],
+  "license": "MIT"
+}

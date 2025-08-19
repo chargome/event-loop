@@ -1,0 +1,16 @@
+{
+  "name": "event-loop",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Monorepo for Event Loop - Deno + Hono API, React + TanStack web",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

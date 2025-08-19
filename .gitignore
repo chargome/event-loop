@@ -1,0 +1,25 @@
+# Node
+node_modules/
+dist/
+*.log
+
+# Deno
+deno.lock
+.deno/
+.deno_dir/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/
+*.swp
+.DS_Store
+
+# Docker
+docker-data/
+postgres_data/
+
+
