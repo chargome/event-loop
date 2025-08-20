@@ -113,16 +113,48 @@ export function EventDetailPage() {
   if (error || !data) return <p>Not found</p>;
   const e = data.event;
   const isCreator = data.isCreator;
+  const isCancelled = e.status === "cancelled";
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="card bg-gradient-to-br from-base-100 to-base-200/50 shadow-xl border border-base-300">
+      <div
+        className={`card bg-gradient-to-br shadow-xl border ${
+          isCancelled
+            ? "from-error/10 to-error/5 border-error/30"
+            : "from-base-100 to-base-200/50 border-base-300"
+        }`}
+      >
         <div className="card-body space-y-6">
+          {isCancelled && (
+            <div className="alert alert-error">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="stroke-current shrink-0 h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>This event has been cancelled</span>
+            </div>
+          )}
+
           <div className="flex items-start justify-between">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h2
+              className={`text-4xl font-bold bg-gradient-to-r bg-clip-text text-transparent ${
+                isCancelled
+                  ? "from-error to-error/70"
+                  : "from-primary to-secondary"
+              }`}
+            >
               {e.title}
             </h2>
-            {isCreator && (
+            {isCreator && !isCancelled && (
               <div className="flex items-center gap-2">
                 <UiButton asChild variant="ghost" size="sm">
                   <Link to="/events/$id/edit" params={{ id: String(id) }}>
@@ -238,27 +270,29 @@ export function EventDetailPage() {
           </SignedOut>
 
           <SignedIn>
-            <div className="flex gap-3 justify-center">
-              {e.signupMode === "external" && e.externalUrl ? (
-                <UiButton asChild variant="secondary" size="sm">
-                  <a href={e.externalUrl} target="_blank" rel="noreferrer">
-                    🔗 Sign up externally
-                  </a>
-                </UiButton>
-              ) : (
-                <UiButton
-                  size="sm"
-                  variant="primary"
-                  loading={registerMutation.isPending && loadingId === id}
-                  onClick={() => registerMutation.mutate()}
-                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-none"
-                >
-                  {registerMutation.isPending && loadingId === id
-                    ? "✨ Registering..."
-                    : "🚀 Register for Event"}
-                </UiButton>
-              )}
-            </div>
+            {!isCancelled && (
+              <div className="flex gap-3 justify-center">
+                {e.signupMode === "external" && e.externalUrl ? (
+                  <UiButton asChild variant="secondary" size="sm">
+                    <a href={e.externalUrl} target="_blank" rel="noreferrer">
+                      🔗 Sign up externally
+                    </a>
+                  </UiButton>
+                ) : (
+                  <UiButton
+                    size="sm"
+                    variant="primary"
+                    loading={registerMutation.isPending && loadingId === id}
+                    onClick={() => registerMutation.mutate()}
+                    className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-none"
+                  >
+                    {registerMutation.isPending && loadingId === id
+                      ? "✨ Registering..."
+                      : "🚀 Register for Event"}
+                  </UiButton>
+                )}
+              </div>
+            )}
           </SignedIn>
         </div>
       </div>
