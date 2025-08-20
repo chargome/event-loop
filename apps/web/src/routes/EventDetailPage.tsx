@@ -1,9 +1,10 @@
 import React from "react";
-import { useParams } from "@tanstack/react-router";
+import { useParams, Link } from "@tanstack/react-router";
 import { useAuth, SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import { UiButton } from "../components/UiButton";
+import { useAuth as useClerkAuth } from "@clerk/clerk-react";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
 
@@ -11,6 +12,7 @@ export function EventDetailPage() {
   const params = useParams({ from: "/events/$id" as any }) as { id: string };
   const id = Number(params.id);
   const { getToken } = useAuth();
+  const { user } = useClerkAuth();
   const qc = useQueryClient();
   const [loadingId, setLoadingId] = React.useState<number | null>(null);
   const { data, isLoading, error } = useQuery({
@@ -31,6 +33,7 @@ export function EventDetailPage() {
           avatar_url: string | null;
           created_at: string;
         }>;
+        isCreator: boolean;
       };
     },
   });
@@ -51,6 +54,25 @@ export function EventDetailPage() {
     onMutate: () => setLoadingId(id),
     onSettled: () => setLoadingId(null),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["event", id] }),
+  });
+
+  // Delete event mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/events/${id}`, {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("Failed to delete event");
+      return res.json();
+    },
+    onSuccess: () => {
+      window.location.href = "/events";
+    },
   });
 
   // Comments query
@@ -90,14 +112,43 @@ export function EventDetailPage() {
   if (isLoading) return <p>Loading…</p>;
   if (error || !data) return <p>Not found</p>;
   const e = data.event;
+  const isCreator = data.isCreator;
 
   return (
     <div className="mx-auto max-w-4xl">
       <div className="card bg-gradient-to-br from-base-100 to-base-200/50 shadow-xl border border-base-300">
         <div className="card-body space-y-6">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            {e.title}
-          </h2>
+          <div className="flex items-start justify-between">
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              {e.title}
+            </h2>
+            {isCreator && (
+              <div className="flex items-center gap-2">
+                <UiButton asChild variant="ghost" size="sm">
+                  <Link to="/events/$id/edit" params={{ id: String(id) }}>
+                    ✏️ Edit
+                  </Link>
+                </UiButton>
+                <button
+                  className="btn btn-error btn-sm"
+                  onClick={() => {
+                    if (
+                      confirm(
+                        "Are you sure you want to cancel this event? This cannot be undone."
+                      )
+                    ) {
+                      deleteMutation.mutate();
+                    }
+                  }}
+                  disabled={deleteMutation.isPending}
+                >
+                  {deleteMutation.isPending
+                    ? "Cancelling..."
+                    : "🗑️ Cancel Event"}
+                </button>
+              </div>
+            )}
+          </div>
           <div className="flex flex-wrap gap-4 text-base-content/70">
             <div className="flex items-center gap-2">
               <span className="text-lg">📅</span>

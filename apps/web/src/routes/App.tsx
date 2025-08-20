@@ -20,9 +20,11 @@ import { EventsListPage } from "./EventsListPage";
 import { MePage } from "./MePage";
 import { NewEventPage } from "./NewEventPage";
 import { EventDetailPage } from "./EventDetailPage";
+import { EditEventPage } from "./EditEventPage";
 import { DarkModeToggle } from "../components/DarkModeToggle";
 import { UiButton } from "../components/UiButton";
 import { OfficeSelector } from "../components/OfficeSelector";
+import donutIcon from "../../assets/donut.png";
 
 const rootRoute = createRootRoute({
   component: () => {
@@ -38,8 +40,13 @@ const rootRoute = createRootRoute({
                 <div className="flex items-center gap-6">
                   <Link
                     to="/"
-                    className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+                    className="flex items-center gap-3 text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
                   >
+                    <img
+                      src={donutIcon}
+                      alt="Event Loop"
+                      className="w-10 h-10 object-contain"
+                    />
                     Event Loop
                   </Link>
                   <nav className="hidden sm:flex items-center gap-1">
@@ -80,7 +87,7 @@ const rootRoute = createRootRoute({
 
                   <OfficeSelector />
                   <SignedIn>
-                    <UiButton asChild variant="primary" size="sm">
+                    <UiButton variant="primary" size="sm">
                       <Link to="/events/new">✨ New Event</Link>
                     </UiButton>
                   </SignedIn>
@@ -153,12 +160,19 @@ const eventDetailRoute = createRoute({
   component: EventDetailPage,
 });
 
+const editEventRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/events/$id/edit",
+  component: EditEventPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   eventsRoute,
   meRoute,
   newEventRoute,
   eventDetailRoute,
+  editEventRoute,
 ]);
 
 export function App() {

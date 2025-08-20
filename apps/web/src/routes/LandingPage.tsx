@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
 import { UiButton } from "../components/UiButton";
 import eventLoopImage from "../../assets/eventLoop.jpg";
+import donutIcon from "../../assets/donut.png";
 
 export function LandingPage() {
   return (
@@ -10,11 +11,18 @@ export function LandingPage() {
       {/* Hero Section */}
       <section className="py-12 px-4">
         <div className="mx-auto max-w-5xl text-center">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-8 leading-tight">
-            <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-              Event Loop
-            </span>
-          </h1>
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <img
+              src={donutIcon}
+              alt="Event Loop"
+              className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain animate-pulse"
+            />
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
+              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                Event Loop
+              </span>
+            </h1>
+          </div>
 
           <p className="text-2xl md:text-3xl font-medium mb-6 text-base-content/80">
             Where your team comes together

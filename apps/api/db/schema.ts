@@ -37,6 +37,10 @@ export const events = pgTable("events", {
     .notNull(),
   externalUrl: text("external_url"),
   isPublic: boolean("is_public").default(true).notNull(),
+  status: varchar("status", { length: 20 })
+    .$type<"active" | "cancelled">()
+    .default("active")
+    .notNull(),
   createdBy: integer("created_by").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })
     .defaultNow()

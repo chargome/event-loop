@@ -1,5 +1,5 @@
 import { Hono } from "@hono/hono";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { requireAuth } from "../auth/clerk.ts";
 import { createDb } from "../db/client.ts";
 import { events, users } from "../db/schema.ts";
@@ -35,8 +35,11 @@ eventsApi.get("/", async (c) => {
       | undefined;
 
     const rows = office
-      ? await db.select().from(events).where(eq(events.office, office))
-      : await db.select().from(events);
+      ? await db
+          .select()
+          .from(events)
+          .where(and(eq(events.office, office), eq(events.status, "active")))
+      : await db.select().from(events).where(eq(events.status, "active"));
 
     // Enhance each event with registration status and attendees
     const eventsWithDetails = await Promise.all(
@@ -97,6 +100,18 @@ eventsApi.get("/:id", async (c) => {
     const id = Number(c.req.param("id"));
     if (!Number.isFinite(id)) return c.json({ error: "Invalid id" }, 400);
 
+    // Get user info from Clerk auth context
+    const user = c.get("user");
+    if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
+
+    // Find user in our database
+    const existingUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, user.primaryEmailAddress?.emailAddress || ""));
+
+    const dbUserId = existingUsers.length > 0 ? existingUsers[0].id : null;
+
     const rows = await db.select().from(events).where(eq(events.id, id));
     const event = rows[0] as any;
     if (!event) {
@@ -116,8 +131,14 @@ eventsApi.get("/:id", async (c) => {
     const attendees = attendeesRes.rows;
     const goingCount = attendees.length;
 
+    // Check if current user is the creator
+    let isCreator = false;
+    if (dbUserId && event.createdBy === dbUserId) {
+      isCreator = true;
+    }
+
     await client.end();
-    return c.json({ event, goingCount, attendees });
+    return c.json({ event, goingCount, attendees, isCreator });
   } catch (error) {
     try {
       await client.end();
@@ -294,6 +315,144 @@ eventsApi.delete("/:id/register", async (c) => {
       "update rsvps set status = 'cancelled' where user_id = $1 and event_id = $2",
       [existingUsers[0].id, id]
     );
+    await client.end();
+    return c.json({ ok: true });
+  } catch (error) {
+    try {
+      await client.end();
+    } catch {}
+    return c.json({ error: String(error) }, 500);
+  }
+});
+
+// PUT /events/:id - Edit an event (creator only)
+eventsApi.put("/:id", async (c) => {
+  const { db, client } = await createDb();
+  try {
+    const id = Number(c.req.param("id"));
+    if (!Number.isFinite(id)) return c.json({ error: "Invalid id" }, 400);
+
+    // Get user info from Clerk auth context
+    const user = c.get("user");
+    if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
+
+    // Find user in our database
+    const existingUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, user.primaryEmailAddress?.emailAddress || ""));
+
+    if (existingUsers.length === 0) {
+      return c.json({ error: "User not found" }, 404);
+    }
+    const dbUserId = existingUsers[0].id;
+
+    // Check if event exists and user is the creator
+    const eventRows = await db
+      .select()
+      .from(events)
+      .where(and(eq(events.id, id), eq(events.status, "active")));
+    const event = eventRows[0];
+    if (!event) return c.json({ error: "Event not found" }, 404);
+    if (event.createdBy !== dbUserId) {
+      return c.json(
+        { error: "Only the event creator can edit this event" },
+        403
+      );
+    }
+
+    const body = await c.req.json();
+    const title =
+      typeof body?.title === "string" ? body.title.trim() : event.title;
+
+    let startsAt = event.startsAt;
+    if (body?.startsAt) {
+      const newStartsAt = new Date(body.startsAt);
+      if (!Number.isNaN(newStartsAt.getTime())) {
+        startsAt = newStartsAt;
+      }
+    }
+
+    const updateData: any = {
+      title,
+      description:
+        typeof body?.description === "string"
+          ? body.description
+          : event.description,
+      location:
+        typeof body?.location === "string" ? body.location : event.location,
+      office: ["VIE", "SFO", "YYZ", "AMS", "SEA"].includes(body?.office)
+        ? body.office
+        : event.office,
+      startsAt,
+      capacity: body?.capacity != null ? Number(body.capacity) : event.capacity,
+      signupMode: ["external", "internal"].includes(body?.signupMode)
+        ? body.signupMode
+        : event.signupMode,
+      externalUrl:
+        typeof body?.externalUrl === "string"
+          ? body.externalUrl
+          : event.externalUrl,
+    };
+
+    const updated = await db
+      .update(events)
+      .set(updateData)
+      .where(eq(events.id, id))
+      .returning();
+
+    await client.end();
+    return c.json({ event: updated[0] });
+  } catch (error) {
+    try {
+      await client.end();
+    } catch {}
+    return c.json({ error: String(error) }, 500);
+  }
+});
+
+// DELETE /events/:id - Cancel an event (creator only)
+eventsApi.delete("/:id", async (c) => {
+  const { db, client } = await createDb();
+  try {
+    const id = Number(c.req.param("id"));
+    if (!Number.isFinite(id)) return c.json({ error: "Invalid id" }, 400);
+
+    // Get user info from Clerk auth context
+    const user = c.get("user");
+    if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
+
+    // Find user in our database
+    const existingUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, user.primaryEmailAddress?.emailAddress || ""));
+
+    if (existingUsers.length === 0) {
+      return c.json({ error: "User not found" }, 404);
+    }
+    const dbUserId = existingUsers[0].id;
+
+    // Check if event exists and user is the creator
+    const eventRows = await db
+      .select()
+      .from(events)
+      .where(and(eq(events.id, id), eq(events.status, "active")));
+    const event = eventRows[0];
+    if (!event) return c.json({ error: "Event not found" }, 404);
+    if (event.createdBy !== dbUserId) {
+      return c.json(
+        { error: "Only the event creator can delete this event" },
+        403
+      );
+    }
+
+    // Soft delete: mark as cancelled
+    await db
+      .update(events)
+      .set({ status: "cancelled" })
+      .where(eq(events.id, id));
+
     await client.end();
     return c.json({ ok: true });
   } catch (error) {
