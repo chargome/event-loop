@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
 import { useAuth } from "@clerk/clerk-react";
+import { useOffice, type Office } from "../contexts/OfficeContext";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
 
@@ -8,17 +9,20 @@ type NewEventForm = {
   title: string;
   description: string;
   location: string;
+  office: Office;
   startsAt: string; // datetime-local value
   capacity: string; // keep as string in the form; convert on submit
 };
 
 export function NewEventPage() {
   const { getToken } = useAuth();
+  const { selectedOffice } = useOffice();
   const form = useForm({
     defaultValues: {
       title: "",
       description: "",
       location: "",
+      office: selectedOffice,
       startsAt: "",
       capacity: "",
     },
@@ -34,6 +38,7 @@ export function NewEventPage() {
           title: value.title,
           description: value.description || null,
           location: value.location || null,
+          office: value.office,
           startsAt: value.startsAt
             ? new Date(value.startsAt).toISOString()
             : null,
@@ -41,7 +46,8 @@ export function NewEventPage() {
         }),
       });
       if (!res.ok) throw new Error("Failed to create event");
-      window.location.href = "/";
+      const result = await res.json();
+      window.location.href = `/events/${result.event.id}`;
     },
   });
 
@@ -111,7 +117,7 @@ export function NewEventPage() {
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <form.Field
                 name="location"
                 children={(field) => (
@@ -128,6 +134,33 @@ export function NewEventPage() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Gym, courts, address…"
                     />
+                  </div>
+                )}
+              />
+
+              <form.Field
+                name="office"
+                children={(field) => (
+                  <div className="form-control w-full">
+                    <label className="label pb-1" htmlFor={field.name}>
+                      <span className="label-text">Office</span>
+                    </label>
+                    <select
+                      id={field.name}
+                      name={field.name}
+                      className="select select-bordered w-full"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) =>
+                        field.handleChange(e.target.value as Office)
+                      }
+                    >
+                      <option value="VIE">🇦🇹 Vienna</option>
+                      <option value="SFO">🇺🇸 San Francisco</option>
+                      <option value="YYZ">🇨🇦 Toronto</option>
+                      <option value="AMS">🇳🇱 Amsterdam</option>
+                      <option value="SEA">🇺🇸 Seattle</option>
+                    </select>
                   </div>
                 )}
               />
@@ -172,7 +205,7 @@ export function NewEventPage() {
                       : undefined,
                 }}
                 children={(field) => (
-                  <div className="form-control w-full md:col-span-2">
+                  <div className="form-control w-full md:col-span-3">
                     <label className="label pb-1" htmlFor={field.name}>
                       <span className="label-text">Capacity</span>
                     </label>

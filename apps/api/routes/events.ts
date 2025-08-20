@@ -25,7 +25,18 @@ eventsApi.get("/", async (c) => {
 
     const dbUserId = existingUsers.length > 0 ? existingUsers[0].id : null;
 
-    const rows = await db.select().from(events);
+    // Get office filter from query params
+    const office = c.req.query("office") as
+      | "VIE"
+      | "SFO"
+      | "YYZ"
+      | "AMS"
+      | "SEA"
+      | undefined;
+
+    const rows = office
+      ? await db.select().from(events).where(eq(events.office, office))
+      : await db.select().from(events);
 
     // Enhance each event with registration status and attendees
     const eventsWithDetails = await Promise.all(
@@ -161,6 +172,9 @@ eventsApi.post("/", async (c) => {
       description:
         typeof body?.description === "string" ? body.description : null,
       location: typeof body?.location === "string" ? body.location : null,
+      office: ["VIE", "SFO", "YYZ", "AMS", "SEA"].includes(body?.office)
+        ? body.office
+        : "VIE",
       startsAt,
       capacity: body?.capacity != null ? Number(body.capacity) : null,
       createdBy: dbUserId,

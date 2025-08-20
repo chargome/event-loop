@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/clerk-react";
 import { EventsDisplay } from "../components/EventsDisplay";
+import { useOffice } from "../contexts/OfficeContext";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
 
@@ -26,11 +27,19 @@ type Event = {
 
 export function EventsListPage() {
   const { getToken } = useAuth();
+  const { selectedOffice } = useOffice();
+
+  console.log("EventsListPage selectedOffice:", selectedOffice); // Debug log
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ["events"],
+    queryKey: ["events", selectedOffice],
     queryFn: async () => {
+      console.log("Fetching events for office:", selectedOffice); // Debug log
       const token = await getToken();
-      const res = await fetch(`${API_URL}/events`, {
+      const url = new URL(`${API_URL}/events`);
+      url.searchParams.set("office", selectedOffice);
+      console.log("API URL:", url.toString()); // Debug log
+      const res = await fetch(url.toString(), {
         headers: token ? { authorization: `Bearer ${token}` } : undefined,
       });
       if (!res.ok) throw new Error("Failed to fetch events");

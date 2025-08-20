@@ -11,6 +11,7 @@ type Event = {
   title: string;
   description: string | null;
   location: string | null;
+  office?: "VIE" | "SFO" | "YYZ" | "AMS" | "SEA";
   startsAt: string;
   capacity: number | null;
   createdBy: number;
@@ -698,9 +699,16 @@ function EventCard({
             <h3 className="card-title text-lg leading-tight group-hover:text-primary transition-colors duration-300">
               {event.title}
             </h3>
-            {isPast && (
-              <span className="badge badge-neutral badge-sm">Past</span>
-            )}
+            <div className="flex items-center gap-2">
+              {event.office && (
+                <span className="badge badge-primary badge-sm">
+                  {event.office}
+                </span>
+              )}
+              {isPast && (
+                <span className="badge badge-neutral badge-sm">Past</span>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2 text-sm text-base-content/70 mb-4">

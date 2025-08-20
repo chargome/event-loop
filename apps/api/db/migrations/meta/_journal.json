@@ -15,6 +15,20 @@
       "when": 1755679145277,
       "tag": "0001_handy_wildside",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755690123751,
+      "tag": "0002_brief_pet_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1755690159014,
+      "tag": "0003_outgoing_titanium_man",
+      "breakpoints": true
     }
   ]
 }

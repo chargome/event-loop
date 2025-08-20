@@ -25,6 +25,10 @@ export const events = pgTable("events", {
   title: varchar("title", { length: 200 }).notNull(),
   description: text("description"),
   location: varchar("location", { length: 255 }),
+  office: varchar("office", { length: 10 })
+    .$type<"VIE" | "SFO" | "YYZ" | "AMS" | "SEA">()
+    .default("VIE")
+    .notNull(),
   startsAt: timestamp("starts_at", { withTimezone: false }).notNull(),
   capacity: integer("capacity"),
   signupMode: varchar("signup_mode", { length: 20 })

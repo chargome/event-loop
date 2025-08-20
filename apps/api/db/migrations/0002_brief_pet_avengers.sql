@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "office" varchar(10) NOT NULL;

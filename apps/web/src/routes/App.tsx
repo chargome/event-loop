@@ -22,12 +22,13 @@ import { NewEventPage } from "./NewEventPage";
 import { EventDetailPage } from "./EventDetailPage";
 import { DarkModeToggle } from "../components/DarkModeToggle";
 import { UiButton } from "../components/UiButton";
+import { OfficeSelector } from "../components/OfficeSelector";
 
 const rootRoute = createRootRoute({
   component: () => {
     const location = useLocation();
     const isLandingPage = location.pathname === "/";
-    
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-base-100 via-base-200/30 to-base-300/20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6">
@@ -35,8 +36,8 @@ const rootRoute = createRootRoute({
             <header className="mb-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-6">
-                  <Link 
-                    to="/" 
+                  <Link
+                    to="/"
                     className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
                   >
                     Event Loop
@@ -58,7 +59,7 @@ const rootRoute = createRootRoute({
                     </Link>
                   </nav>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <nav className="flex sm:hidden items-center gap-1">
                     <Link
@@ -76,7 +77,8 @@ const rootRoute = createRootRoute({
                       Me
                     </Link>
                   </nav>
-                  
+
+                  <OfficeSelector />
                   <SignedIn>
                     <UiButton asChild variant="primary" size="sm">
                       <Link to="/events/new">✨ New Event</Link>
@@ -93,9 +95,10 @@ const rootRoute = createRootRoute({
               </div>
             </header>
           )}
-          
+
           {isLandingPage && (
             <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+              <OfficeSelector />
               <SignedIn>
                 <UiButton asChild variant="primary" size="sm">
                   <Link to="/events/new">✨ New Event</Link>
@@ -110,7 +113,7 @@ const rootRoute = createRootRoute({
               </SignedIn>
             </div>
           )}
-          
+
           <main>
             <Outlet />
           </main>

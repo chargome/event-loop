@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ClerkProvider } from "@clerk/clerk-react";
 
 import { App } from "./routes/App";
+import { OfficeProvider } from "./contexts/OfficeContext";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +23,9 @@ root.render(
   <React.StrictMode>
     <ClerkProvider publishableKey={publishableKey ?? ""}>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <OfficeProvider>
+          <App />
+        </OfficeProvider>
       </QueryClientProvider>
     </ClerkProvider>
   </React.StrictMode>
