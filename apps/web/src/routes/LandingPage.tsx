@@ -37,7 +37,7 @@ export function LandingPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
               <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10"></div>
             </div>
-            
+
             {/* Enhanced Background decoration */}
             <div className="absolute -inset-8 -z-10">
               <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-2xl animate-pulse"></div>
