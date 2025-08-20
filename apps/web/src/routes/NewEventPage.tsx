@@ -47,8 +47,10 @@ export function NewEventPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h2 className="text-2xl font-semibold mb-4">Create Event</h2>
-      <div className="card border border-base-300 shadow-sm">
+      <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-center">
+        Create New Event
+      </h2>
+      <div className="card bg-gradient-to-br from-base-100 to-base-200/50 border border-base-300 shadow-xl">
         <div className="card-body">
           <form
             className="space-y-6"
@@ -202,11 +204,11 @@ export function NewEventPage() {
               children={([canSubmit, isSubmitting]) => (
                 <div className="flex items-center gap-3 pt-2">
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-none"
                     disabled={!canSubmit}
                     type="submit"
                   >
-                    {isSubmitting ? "Saving ..." : "Create Event"}
+                    {isSubmitting ? "✨ Creating..." : "🚀 Create Event"}
                   </button>
                   <a href="/" className="btn btn-ghost">
                     Cancel

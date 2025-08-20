@@ -13,9 +13,64 @@ eventsApi.use("*", requireAuth);
 eventsApi.get("/", async (c) => {
   const { db, client } = await createDb();
   try {
+    // Get user info from Clerk auth context
+    const user = c.get("user");
+    if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
+
+    // Find user in our database
+    const existingUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, user.primaryEmailAddress?.emailAddress || ""));
+
+    const dbUserId = existingUsers.length > 0 ? existingUsers[0].id : null;
+
     const rows = await db.select().from(events);
+
+    // Enhance each event with registration status and attendees
+    const eventsWithDetails = await Promise.all(
+      rows.map(async (event) => {
+        // Check if current user is registered
+        let isRegistered = false;
+        if (dbUserId) {
+          const registration = await client.query(
+            "select status from rsvps where user_id = $1 and event_id = $2",
+            [dbUserId, event.id]
+          );
+          isRegistered =
+            registration.rows.length > 0 &&
+            registration.rows[0].status === "going";
+        }
+
+        // Get attendees (limit to first 5 for performance)
+        const attendeesRes = await client.query(
+          `select u.id, u.name, u.avatar_url 
+           from rsvps r 
+           join users u on r.user_id = u.id 
+           where r.event_id = $1 and r.status = 'going'
+           order by r.created_at
+           limit 5`,
+          [event.id]
+        );
+
+        // Get total going count
+        const countRes = await client.query(
+          "select count(*)::int as count from rsvps where event_id = $1 and status = 'going'",
+          [event.id]
+        );
+        const goingCount = Number((countRes.rows[0] as any)?.count ?? 0);
+
+        return {
+          ...event,
+          isRegistered,
+          attendees: attendeesRes.rows,
+          goingCount,
+        };
+      })
+    );
+
     await client.end();
-    return c.json({ events: rows });
+    return c.json({ events: eventsWithDetails });
   } catch (error) {
     try {
       await client.end();

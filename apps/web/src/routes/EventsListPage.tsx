@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/clerk-react";
-import { EventsList } from "../components/EventsList";
+import { EventsDisplay } from "../components/EventsDisplay";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
 
@@ -15,6 +15,13 @@ type Event = {
   createdAt: string;
   signupMode?: "internal" | "external";
   externalUrl?: string | null;
+  isRegistered?: boolean;
+  attendees?: Array<{
+    id: number;
+    name: string | null;
+    avatar_url: string | null;
+  }>;
+  goingCount?: number;
 };
 
 export function EventsListPage() {
@@ -33,7 +40,7 @@ export function EventsListPage() {
 
   const events = data?.events ?? [];
   return (
-    <EventsList
+    <EventsDisplay
       events={events}
       isLoading={isLoading}
       error={error}
