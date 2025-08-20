@@ -263,17 +263,14 @@ function CardsView({
       <div className="space-y-8">
         {upcomingEvents.length > 0 && (
           <div>
-            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              {showSectionBadges && (
+            {showSectionBadges && (
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <span className="badge badge-success badge-sm">Upcoming</span>
-              )}
-              <span className="text-base-content">Events</span>
-              {showSectionBadges && (
                 <span className="badge badge-ghost badge-sm">
                   {upcomingEvents.length}
                 </span>
-              )}
-            </h3>
+              </h3>
+            )}
             <EventsGrid
               events={upcomingEvents}
               activeId={activeId}
@@ -285,17 +282,14 @@ function CardsView({
 
         {pastEvents.length > 0 && (
           <div>
-            <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              {showSectionBadges && (
+            {showSectionBadges && (
+              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <span className="badge badge-neutral badge-sm">Past</span>
-              )}
-              <span className="text-base-content">Events</span>
-              {showSectionBadges && (
                 <span className="badge badge-ghost badge-sm">
                   {pastEvents.length}
                 </span>
-              )}
-            </h3>
+              </h3>
+            )}
             <EventsGrid
               events={pastEvents}
               activeId={activeId}
