@@ -69,29 +69,8 @@ const rootRoute = createRootRoute({
             style={{
               animationDuration: "45s",
               animationDirection: "reverse",
-              transform: "rotate(-30deg) scaleX(-1)",
+              transform: "rotate(-30deg)",
               filter: "hue-rotate(240deg)",
-            }}
-          />
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute -top-10 -left-10 w-64 h-64 object-contain animate-spin"
-            style={{
-              animationDuration: "80s",
-              transform: "rotate(15deg) scale(0.8)",
-              filter: "hue-rotate(180deg)",
-            }}
-          />
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute -bottom-10 -right-10 w-72 h-72 object-contain animate-spin"
-            style={{
-              animationDuration: "70s",
-              animationDirection: "reverse",
-              transform: "rotate(-45deg) scaleY(-1)",
-              filter: "hue-rotate(300deg)",
             }}
           />
         </div>
@@ -112,33 +91,11 @@ const rootRoute = createRootRoute({
           <img
             src={donutIcon}
             alt=""
-            className="absolute top-3/4 right-1/5 w-36 h-36 object-contain animate-bounce"
-            style={{
-              animationDelay: "2s",
-              animationDuration: "5s",
-              transform: "rotate(-60deg) scaleX(-1)",
-              filter: "hue-rotate(160deg)",
-            }}
-          />
-          <img
-            src={donutIcon}
-            alt=""
             className="absolute top-1/3 right-1/3 w-28 h-28 object-contain animate-pulse"
             style={{
               animationDuration: "3s",
               transform: "rotate(90deg)",
               filter: "hue-rotate(270deg)",
-            }}
-          />
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute top-2/3 left-1/3 w-32 h-32 object-contain animate-pulse"
-            style={{
-              animationDelay: "1.5s",
-              animationDuration: "2.5s",
-              transform: "rotate(-90deg) scaleY(-1)",
-              filter: "hue-rotate(90deg)",
             }}
           />
         </div>
