@@ -35,70 +35,224 @@ const rootRoute = createRootRoute({
       <div className="min-h-screen relative overflow-hidden">
         {/* Unconventional Donut Background Pattern */}
         <div className="absolute inset-0 bg-gradient-to-br from-base-100 via-base-200/30 to-base-300/20"></div>
-        {/* Unconventional donut layers - works in both light and dark mode */}
-        <div className="absolute inset-0 opacity-[0.12] mix-blend-normal dark:mix-blend-screen">
-          {/* Mega donut - giant center piece */}
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] object-contain animate-spin"
+        {/* Floating particles with independent movement */}
+        <div className="absolute inset-0 opacity-[0.15] dark:opacity-[0.2]">
+          {/* Floating particles with custom animations */}
+          <div
+            className="absolute w-3 h-3 bg-primary/60 rounded-full"
             style={{
-              animationDuration: "200s",
-              filter:
-                "hue-rotate(45deg) saturate(0.7) brightness(0.8) contrast(1.2)",
+              top: "20%",
+              left: "15%",
+              animation: "float1 8s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="absolute w-2 h-2 bg-secondary/70 rounded-full"
+            style={{
+              top: "60%",
+              right: "25%",
+              animation: "float2 6s ease-in-out infinite 1s",
+            }}
+          />
+          <div
+            className="absolute w-2.5 h-2.5 bg-accent/50 rounded-full"
+            style={{
+              top: "35%",
+              right: "10%",
+              animation: "float3 10s ease-in-out infinite 2s",
+            }}
+          />
+          <div
+            className="absolute w-2 h-2 bg-primary/50 rounded-full"
+            style={{
+              bottom: "30%",
+              left: "20%",
+              animation: "float4 7s ease-in-out infinite 0.5s",
+            }}
+          />
+          <div
+            className="absolute w-3 h-3 bg-secondary/40 rounded-full"
+            style={{
+              bottom: "15%",
+              right: "35%",
+              animation: "float5 9s ease-in-out infinite 1.5s",
+            }}
+          />
+          <div
+            className="absolute w-2 h-2 bg-accent/60 rounded-full"
+            style={{
+              top: "75%",
+              left: "40%",
+              animation: "float6 5s ease-in-out infinite 2.2s",
+            }}
+          />
+          <div
+            className="absolute w-1.5 h-1.5 bg-primary/40 rounded-full"
+            style={{
+              top: "10%",
+              left: "60%",
+              animation: "float7 11s ease-in-out infinite 3s",
+            }}
+          />
+          <div
+            className="absolute w-2.5 h-2.5 bg-secondary/30 rounded-full"
+            style={{
+              top: "45%",
+              left: "5%",
+              animation: "float8 6.5s ease-in-out infinite 0.8s",
+            }}
+          />
+          <div
+            className="absolute w-2 h-2 bg-accent/45 rounded-full"
+            style={{
+              bottom: "40%",
+              right: "15%",
+              animation: "float9 8.5s ease-in-out infinite 1.8s",
+            }}
+          />
+          <div
+            className="absolute w-1.5 h-1.5 bg-primary/35 rounded-full"
+            style={{
+              top: "85%",
+              right: "50%",
+              animation: "float10 7.5s ease-in-out infinite 2.5s",
+            }}
+          />
+          <div
+            className="absolute w-2 h-2 bg-secondary/55 rounded-full"
+            style={{
+              top: "50%",
+              left: "80%",
+              animation: "float11 9.5s ease-in-out infinite 1.2s",
+            }}
+          />
+          <div
+            className="absolute w-1.5 h-1.5 bg-accent/35 rounded-full"
+            style={{
+              bottom: "60%",
+              left: "70%",
+              animation: "float12 6.8s ease-in-out infinite 3.2s",
+            }}
+          />
+          <div
+            className="absolute w-2 h-2 bg-primary/45 rounded-full"
+            style={{
+              top: "25%",
+              right: "60%",
+              animation: "float13 7.2s ease-in-out infinite 0.3s",
+            }}
+          />
+          <div
+            className="absolute w-1.5 h-1.5 bg-secondary/50 rounded-full"
+            style={{
+              bottom: "25%",
+              left: "50%",
+              animation: "float14 8.8s ease-in-out infinite 2.8s",
+            }}
+          />
+          <div
+            className="absolute w-2.5 h-2.5 bg-accent/40 rounded-full"
+            style={{
+              top: "55%",
+              left: "30%",
+              animation: "float15 6.2s ease-in-out infinite 1.7s",
+            }}
+          />
+          <div
+            className="absolute w-1.5 h-1.5 bg-primary/30 rounded-full"
+            style={{
+              top: "90%",
+              left: "85%",
+              animation: "float16 9.2s ease-in-out infinite 3.5s",
             }}
           />
         </div>
 
-        <div className="absolute inset-0 opacity-[0.08] mix-blend-normal dark:mix-blend-overlay">
-          {/* Corner donuts with different rotations */}
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute -top-20 -right-20 w-96 h-96 object-contain animate-spin"
-            style={{
-              animationDuration: "60s",
-              transform: "rotate(45deg) scale(1.2)",
-              filter: "hue-rotate(120deg) brightness(0.9) contrast(1.1)",
-            }}
-          />
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute -bottom-20 -left-20 w-80 h-80 object-contain animate-spin"
-            style={{
-              animationDuration: "45s",
-              animationDirection: "reverse",
-              transform: "rotate(-30deg)",
-              filter: "hue-rotate(240deg)",
-            }}
-          />
-        </div>
-
-        <div className="absolute inset-0 opacity-[0.06] mix-blend-normal dark:mix-blend-soft-light">
-          {/* Floating medium donuts with bounce */}
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute top-1/4 left-1/5 w-40 h-40 object-contain animate-bounce"
-            style={{
-              animationDelay: "0s",
-              animationDuration: "4s",
-              transform: "rotate(30deg)",
-              filter: "hue-rotate(60deg)",
-            }}
-          />
-          <img
-            src={donutIcon}
-            alt=""
-            className="absolute top-1/3 right-1/3 w-28 h-28 object-contain animate-pulse"
-            style={{
-              animationDuration: "3s",
-              transform: "rotate(90deg)",
-              filter: "hue-rotate(270deg)",
-            }}
-          />
-        </div>
+        {/* Custom keyframes for independent particle movement */}
+        <style>{`
+          @keyframes float1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(10px, -15px) scale(1.1); }
+            50% { transform: translate(-5px, -25px) scale(0.9); }
+            75% { transform: translate(-15px, -10px) scale(1.05); }
+          }
+          @keyframes float2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-20px, 10px) scale(1.2); }
+            66% { transform: translate(15px, -20px) scale(0.8); }
+          }
+          @keyframes float3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            20% { transform: translate(8px, -12px) scale(1.1); }
+            40% { transform: translate(-12px, 8px) scale(0.9); }
+            60% { transform: translate(18px, 15px) scale(1.15); }
+            80% { transform: translate(-8px, -18px) scale(0.95); }
+          }
+          @keyframes float4 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-25px, -30px) scale(1.3); }
+          }
+          @keyframes float5 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            30% { transform: translate(12px, 8px) scale(0.8); }
+            70% { transform: translate(-18px, 12px) scale(1.2); }
+          }
+          @keyframes float6 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-10px, 15px) scale(1.1); }
+            75% { transform: translate(20px, -10px) scale(0.9); }
+          }
+          @keyframes float7 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            40% { transform: translate(15px, -20px) scale(1.2); }
+            80% { transform: translate(-10px, 25px) scale(0.8); }
+          }
+          @keyframes float8 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            35% { transform: translate(-15px, -8px) scale(1.1); }
+            65% { transform: translate(8px, 20px) scale(0.9); }
+          }
+          @keyframes float9 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(22px, -15px) scale(1.25); }
+          }
+          @keyframes float10 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-8px, 12px) scale(0.9); }
+            50% { transform: translate(18px, -8px) scale(1.1); }
+            75% { transform: translate(-12px, -15px) scale(1.05); }
+          }
+          @keyframes float11 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            45% { transform: translate(-20px, 18px) scale(1.15); }
+            90% { transform: translate(12px, -22px) scale(0.85); }
+          }
+          @keyframes float12 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            30% { transform: translate(25px, -12px) scale(1.2); }
+            60% { transform: translate(-15px, 20px) scale(0.9); }
+          }
+          @keyframes float13 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            40% { transform: translate(-18px, 14px) scale(1.1); }
+            80% { transform: translate(12px, -18px) scale(0.9); }
+          }
+          @keyframes float14 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -25px) scale(1.15); }
+            50% { transform: translate(-10px, 15px) scale(0.85); }
+            75% { transform: translate(15px, 10px) scale(1.05); }
+          }
+          @keyframes float15 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-22px, -8px) scale(1.25); }
+            66% { transform: translate(18px, 22px) scale(0.8); }
+          }
+          @keyframes float16 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-30px, 20px) scale(1.3); }
+          }
+        `}</style>
 
         {/* Content overlay */}
         <div className="relative z-10">

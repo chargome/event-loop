@@ -8,16 +8,45 @@
     <script>
       (() => {
         try {
-          const saved = localStorage.getItem("theme");
+          // Check for saved dark mode preference
+          const savedDarkMode = localStorage.getItem("darkMode");
           const prefersDark = window.matchMedia(
             "(prefers-color-scheme: dark)"
           ).matches;
-          const theme = saved || (prefersDark ? "dark" : "light");
+
+          // Determine if we should use dark mode
+          let isDark;
+          if (savedDarkMode === "true") {
+            isDark = true;
+          } else if (savedDarkMode === "false") {
+            isDark = false;
+          } else {
+            // No saved preference, use OS preference
+            isDark = prefersDark;
+          }
+
+          const theme = isDark ? "dark" : "light";
           const root = document.documentElement;
-          root.dataset.theme = theme;
-          if (theme === "dark") root.classList.add("dark");
-          else root.classList.remove("dark");
-        } catch {}
+
+          // Apply theme
+          root.setAttribute("data-theme", theme);
+
+          if (isDark) {
+            root.classList.add("dark");
+          } else {
+            root.classList.remove("dark");
+          }
+
+          console.log("Initial theme applied:", {
+            savedDarkMode: savedDarkMode || "none",
+            isDark,
+            theme,
+            osPreference: prefersDark ? "dark" : "light",
+            hasClass: root.classList.contains("dark"),
+          });
+        } catch (e) {
+          console.error("Theme initialization error:", e);
+        }
       })();
     </script>
   </head>
