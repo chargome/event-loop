@@ -423,17 +423,30 @@ function CalendarView({
                       {day}
                     </div>
                     <div className="space-y-1 mt-1">
-                      {dayEvents.slice(0, 2).map((event) => (
-                        <Link
-                          key={event.id}
-                          to="/events/$id"
-                          params={{ id: String(event.id) }}
-                          className="block text-xs p-1 rounded bg-primary/20 text-primary truncate hover:bg-primary/30 transition-colors"
-                          title={event.title}
-                        >
-                          {event.title}
-                        </Link>
-                      ))}
+                      {dayEvents.slice(0, 2).map((event) => {
+                        const eventTime = new Date(
+                          event.startsAt
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+                        return (
+                          <Link
+                            key={event.id}
+                            to="/events/$id"
+                            params={{ id: String(event.id) }}
+                            className="block text-xs p-1 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-colors"
+                            title={`${event.title} at ${eventTime}`}
+                          >
+                            <div className="truncate font-medium">
+                              {event.title}
+                            </div>
+                            <div className="text-xs opacity-80">
+                              {eventTime}
+                            </div>
+                          </Link>
+                        );
+                      })}
                       {dayEvents.length > 2 && (
                         <div className="text-xs text-base-content/60">
                           +{dayEvents.length - 2} more
@@ -517,11 +530,11 @@ function EventCard({
           isPast
             ? "from-base-200/50 to-base-300/30"
             : "from-base-100 to-base-200/50"
-        } shadow-lg border border-base-300/50 transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:shadow-2xl group-hover:shadow-primary/10 group-hover:border-primary/20 ${
+        } shadow-lg border border-base-300/50 transition-all duration-300 ease-out group-hover:shadow-2xl group-hover:shadow-primary/10 group-hover:border-primary/20 ${
           !isPast ? "group-hover:from-primary/5 group-hover:to-secondary/5" : ""
-        } cursor-pointer`}
+        } cursor-pointer h-full`}
       >
-        <div className="card-body p-4">
+        <div className="card-body p-4 flex flex-col h-full">
           <div className="flex items-start justify-between mb-3">
             <h3 className="card-title text-lg leading-tight group-hover:text-primary transition-colors duration-300">
               {event.title}
@@ -533,15 +546,11 @@ function EventCard({
 
           <div className="space-y-2 text-sm text-base-content/70 mb-4">
             <div className="flex items-center gap-2">
-              <span className="group-hover:scale-110 transition-transform duration-300">
-                📅
-              </span>
+              <span>📅</span>
               <span>{eventDate.toLocaleDateString()}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="group-hover:scale-110 transition-transform duration-300">
-                🕒
-              </span>
+              <span>🕒</span>
               <span>
                 {eventDate.toLocaleTimeString([], {
                   hour: "2-digit",
@@ -551,13 +560,22 @@ function EventCard({
             </div>
             {event.location && (
               <div className="flex items-center gap-2">
-                <span className="group-hover:scale-110 transition-transform duration-300">
-                  📍
-                </span>
+                <span>📍</span>
                 <span>{event.location}</span>
               </div>
             )}
           </div>
+
+          {/* Description */}
+          {event.description && (
+            <div className="mb-4">
+              <p className="text-sm text-base-content/60 leading-relaxed line-clamp-2">
+                {event.description.length > 120
+                  ? `${event.description.slice(0, 120)}...`
+                  : event.description}
+              </p>
+            </div>
+          )}
 
           {/* Attendees Section */}
           {attendees.length > 0 && (
@@ -607,7 +625,7 @@ function EventCard({
             </div>
           )}
 
-          <div className="card-actions justify-end">
+          <div className="card-actions justify-end mt-auto">
             {event.signupMode === "external" && event.externalUrl ? (
               <UiButton
                 asChild
@@ -625,7 +643,7 @@ function EventCard({
                 </a>
               </UiButton>
             ) : isRegistered ? (
-              <div className="flex items-center gap-1 text-success text-sm group-hover:scale-105 transition-transform duration-300">
+              <div className="flex items-center gap-1 text-success text-sm">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
@@ -650,7 +668,6 @@ function EventCard({
                   e.stopPropagation();
                   registerMutation.mutate(event.id);
                 }}
-                className="group-hover:scale-105 transition-transform duration-300"
               >
                 Register
               </UiButton>
