@@ -73,6 +73,31 @@ export function EventsDisplay({
     onSettled: () => setActiveId(null),
   });
 
+  const deregisterMutation = useMutation({
+    mutationFn: async (eventId: number) => {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/events/${eventId}/register`, {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("Failed to deregister");
+      return res.json();
+    },
+    onMutate: (id) => setActiveId(id),
+    onSuccess: (_data, id) => {
+      setRegisteredIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+      qc.invalidateQueries({ queryKey: ["events"] });
+    },
+    onSettled: () => setActiveId(null),
+  });
+
   // Time filtering logic
   const filterEventsByTime = (events: Event[], filter: TimeFilter): Event[] => {
     const now = new Date();
@@ -222,6 +247,7 @@ export function EventsDisplay({
             activeId={activeId}
             registeredIds={registeredIds}
             registerMutation={registerMutation}
+            deregisterMutation={deregisterMutation}
           />
         )}
 
@@ -231,6 +257,7 @@ export function EventsDisplay({
             activeId={activeId}
             registeredIds={registeredIds}
             registerMutation={registerMutation}
+            deregisterMutation={deregisterMutation}
           />
         )}
       </SignedIn>
@@ -247,6 +274,7 @@ function CardsView({
   activeId,
   registeredIds,
   registerMutation,
+  deregisterMutation,
 }: {
   events: Event[];
   upcomingEvents: Event[];
@@ -255,6 +283,7 @@ function CardsView({
   activeId: number | null;
   registeredIds: Set<number>;
   registerMutation: any;
+  deregisterMutation: any;
 }) {
   if (timeFilter === "all") {
     const showSectionBadges =
@@ -277,6 +306,7 @@ function CardsView({
               activeId={activeId}
               registeredIds={registeredIds}
               registerMutation={registerMutation}
+              deregisterMutation={deregisterMutation}
             />
           </div>
         )}
@@ -296,6 +326,7 @@ function CardsView({
               activeId={activeId}
               registeredIds={registeredIds}
               registerMutation={registerMutation}
+              deregisterMutation={deregisterMutation}
             />
           </div>
         )}
@@ -319,6 +350,7 @@ function CardsView({
       activeId={activeId}
       registeredIds={registeredIds}
       registerMutation={registerMutation}
+      deregisterMutation={deregisterMutation}
     />
   );
 }
@@ -329,11 +361,13 @@ function CalendarView({
   activeId,
   registeredIds,
   registerMutation,
+  deregisterMutation,
 }: {
   events: Event[];
   activeId: number | null;
   registeredIds: Set<number>;
   registerMutation: any;
+  deregisterMutation: any;
 }) {
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -495,125 +529,154 @@ function CalendarView({
 
               <div className="overflow-y-auto">
                 <div className="space-y-3">
-                  {selectedDayEvents.map((event: Event) => (
-                    <div
-                      key={event.id}
-                      className="card bg-base-200/50 border border-base-300"
-                    >
-                      <div className="card-body p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-semibold">
-                            <Link
-                              to="/events/$id"
-                              params={{ id: String(event.id) }}
-                              className="hover:text-primary transition-colors"
-                              onClick={() => setSelectedDay(null)}
-                            >
-                              {event.title}
-                            </Link>
-                          </h4>
-                          <span className="text-sm text-base-content/60">
-                            {new Date(event.startsAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        </div>
-
-                        {event.location && (
-                          <div className="text-sm text-base-content/70 mb-2">
-                            📍 {event.location}
-                          </div>
-                        )}
-
-                        {event.description && (
-                          <p className="text-sm text-base-content/60 mb-3">
-                            {event.description.length > 100
-                              ? `${event.description.slice(0, 100)}...`
-                              : event.description}
-                          </p>
-                        )}
-
-                        <div className="flex items-center justify-between">
-                          {event.attendees && event.attendees.length > 0 && (
-                            <div className="flex items-center gap-1">
-                              {event.attendees
-                                .slice(0, 3)
-                                .map((attendee: any) => (
-                                  <div key={attendee.id}>
-                                    {attendee.avatar_url ? (
-                                      <img
-                                        src={attendee.avatar_url}
-                                        alt={attendee.name || "Attendee"}
-                                        className="w-6 h-6 rounded-full ring-2 ring-base-100 object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 ring-2 ring-base-100 flex items-center justify-center">
-                                        <span className="text-xs font-bold text-primary">
-                                          {(attendee.name ||
-                                            "A")[0].toUpperCase()}
-                                        </span>
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              {(event.goingCount || 0) > 3 && (
-                                <span className="text-xs text-base-content/60 ml-1">
-                                  +{(event.goingCount || 0) - 3}
-                                </span>
-                              )}
-                            </div>
-                          )}
-
-                          {event.signupMode === "external" &&
-                          event.externalUrl ? (
-                            <a
-                              href={event.externalUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="btn btn-secondary btn-sm"
-                            >
-                              External
-                            </a>
-                          ) : event.isRegistered ? (
-                            <div className="flex items-center gap-1 text-success text-sm">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                                className="w-4 h-4"
+                  {selectedDayEvents.map((event: Event) => {
+                    const isRegistered =
+                      event.isRegistered || registeredIds.has(event.id);
+                    return (
+                      <div
+                        key={event.id}
+                        className="card bg-base-200/50 border border-base-300"
+                      >
+                        <div className="card-body p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-semibold">
+                              <Link
+                                to="/events/$id"
+                                params={{ id: String(event.id) }}
+                                className="hover:text-primary transition-colors"
+                                onClick={() => setSelectedDay(null)}
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.704 4.153a.75.75 0 01.143 1.052l-7.5 9.5a.75.75 0 01-1.127.06l-3.5-3.75a.75.75 0 111.096-1.024l2.91 3.121 6.96-8.819a.75.75 0 011.018-.14z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              Registered
+                                {event.title}
+                              </Link>
+                            </h4>
+                            <span className="text-sm text-base-content/60">
+                              {new Date(event.startsAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+
+                          {event.location && (
+                            <div className="text-sm text-base-content/70 mb-2">
+                              📍 {event.location}
                             </div>
-                          ) : (
-                            <button
-                              className="btn btn-primary btn-sm"
-                              disabled={
-                                activeId === event.id &&
-                                registerMutation.isPending
-                              }
-                              onClick={(e: React.MouseEvent) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                registerMutation.mutate(event.id);
-                              }}
-                            >
-                              {activeId === event.id &&
-                              registerMutation.isPending
-                                ? "Registering..."
-                                : "Register"}
-                            </button>
                           )}
+
+                          {event.description && (
+                            <p className="text-sm text-base-content/60 mb-3">
+                              {event.description.length > 100
+                                ? `${event.description.slice(0, 100)}...`
+                                : event.description}
+                            </p>
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            {event.attendees && event.attendees.length > 0 && (
+                              <div className="flex items-center gap-1">
+                                {event.attendees
+                                  .slice(0, 3)
+                                  .map((attendee: any) => (
+                                    <div key={attendee.id}>
+                                      {attendee.avatar_url ? (
+                                        <img
+                                          src={attendee.avatar_url}
+                                          alt={attendee.name || "Attendee"}
+                                          className="w-6 h-6 rounded-full ring-2 ring-base-100 object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 ring-2 ring-base-100 flex items-center justify-center">
+                                          <span className="text-xs font-bold text-primary">
+                                            {(attendee.name ||
+                                              "A")[0].toUpperCase()}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                {(event.goingCount || 0) > 3 && (
+                                  <span className="text-xs text-base-content/60 ml-1">
+                                    +{(event.goingCount || 0) - 3}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
+                            {event.signupMode === "external" &&
+                            event.externalUrl ? (
+                              <a
+                                href={event.externalUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="btn btn-secondary btn-sm"
+                              >
+                                External
+                              </a>
+                            ) : event.isRegistered ||
+                              registeredIds.has(event.id) ? (
+                              <div className="flex items-center gap-1 text-success text-sm">
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.704 4.153a.75.75 0 01.143 1.052l-7.5 9.5a.75.75 0 01-1.127.06l-3.5-3.75a.75.75 0 111.096-1.024l2.91 3.121 6.96-8.819a.75.75 0 011.018-.14z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                                Registered
+                              </div>
+                            ) : isRegistered ? (
+                              <button
+                                className="btn btn-secondary btn-sm bg-gradient-to-r from-warning to-error hover:from-warning/90 hover:to-error/90 border-none text-white"
+                                disabled={
+                                  activeId === event.id &&
+                                  deregisterMutation.isPending
+                                }
+                                onClick={(e: React.MouseEvent) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (
+                                    confirm(
+                                      "Are you sure you want to unregister from this event?"
+                                    )
+                                  ) {
+                                    deregisterMutation.mutate(event.id);
+                                  }
+                                }}
+                              >
+                                {activeId === event.id &&
+                                deregisterMutation.isPending
+                                  ? "Unregistering..."
+                                  : "❌ Unregister"}
+                              </button>
+                            ) : (
+                              <button
+                                className="btn btn-primary btn-sm"
+                                disabled={
+                                  activeId === event.id &&
+                                  registerMutation.isPending
+                                }
+                                onClick={(e: React.MouseEvent) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  registerMutation.mutate(event.id);
+                                }}
+                              >
+                                {activeId === event.id &&
+                                registerMutation.isPending
+                                  ? "Registering..."
+                                  : "Register"}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -630,11 +693,13 @@ function EventsGrid({
   activeId,
   registeredIds,
   registerMutation,
+  deregisterMutation,
 }: {
   events: Event[];
   activeId: number | null;
   registeredIds: Set<number>;
   registerMutation: any;
+  deregisterMutation: any;
 }) {
   if (events.length === 0) {
     return (
@@ -655,6 +720,7 @@ function EventsGrid({
           activeId={activeId}
           registeredIds={registeredIds}
           registerMutation={registerMutation}
+          deregisterMutation={deregisterMutation}
         />
       ))}
     </div>
@@ -667,11 +733,13 @@ function EventCard({
   activeId,
   registeredIds,
   registerMutation,
+  deregisterMutation,
 }: {
   event: Event;
   activeId: number | null;
   registeredIds: Set<number>;
   registerMutation: any;
+  deregisterMutation: any;
 }) {
   const eventDate = new Date(event.startsAt);
   const isPast = eventDate < new Date();
@@ -821,18 +889,44 @@ function EventCard({
                 Registered
               </div>
             ) : !isPast ? (
-              <UiButton
-                size="sm"
-                variant="primary"
-                loading={activeId === event.id && registerMutation.isPending}
-                onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  registerMutation.mutate(event.id);
-                }}
-              >
-                Register
-              </UiButton>
+              isRegistered ? (
+                <UiButton
+                  size="sm"
+                  variant="secondary"
+                  loading={
+                    activeId === event.id && deregisterMutation.isPending
+                  }
+                  onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (
+                      confirm(
+                        "Are you sure you want to unregister from this event?"
+                      )
+                    ) {
+                      deregisterMutation.mutate(event.id);
+                    }
+                  }}
+                  className="bg-gradient-to-r from-warning to-error hover:from-warning/90 hover:to-error/90 border-none text-white"
+                >
+                  {activeId === event.id && deregisterMutation.isPending
+                    ? "Unregistering..."
+                    : "❌ Unregister"}
+                </UiButton>
+              ) : (
+                <UiButton
+                  size="sm"
+                  variant="primary"
+                  loading={activeId === event.id && registerMutation.isPending}
+                  onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    registerMutation.mutate(event.id);
+                  }}
+                >
+                  Register
+                </UiButton>
+              )
             ) : null}
           </div>
         </div>

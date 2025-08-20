@@ -63,6 +63,24 @@ export function EventDetailPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["event", id] }),
   });
 
+  const deregisterMutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/events/${id}/register`, {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error("Failed to deregister");
+      return res.json();
+    },
+    onMutate: () => setLoadingId(id),
+    onSettled: () => setLoadingId(null),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["event", id] }),
+  });
+
   // Delete event mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -123,6 +141,11 @@ export function EventDetailPage() {
   const e = data.event;
   const isCreator = data.isCreator;
   const isCancelled = e.status === "cancelled";
+
+  // Check if current user is registered for this event
+  const isRegistered = data.attendees?.some(
+    (attendee) => attendee.email === user?.primaryEmailAddress?.emailAddress
+  );
 
   return (
     <>
@@ -318,6 +341,28 @@ export function EventDetailPage() {
                             🔗 Sign up externally
                           </UiButton>
                         </a>
+                      ) : isRegistered ? (
+                        <UiButton
+                          size="sm"
+                          variant="secondary"
+                          loading={
+                            deregisterMutation.isPending && loadingId === id
+                          }
+                          onClick={() => {
+                            if (
+                              confirm(
+                                "Are you sure you want to unregister from this event?"
+                              )
+                            ) {
+                              deregisterMutation.mutate();
+                            }
+                          }}
+                          className="bg-gradient-to-r from-warning to-error hover:from-warning/90 hover:to-error/90 border-none text-white"
+                        >
+                          {deregisterMutation.isPending && loadingId === id
+                            ? "⏳ Unregistering..."
+                            : "❌ Unregister"}
+                        </UiButton>
                       ) : (
                         <UiButton
                           size="sm"
