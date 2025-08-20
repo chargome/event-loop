@@ -40,14 +40,27 @@ const rootRoute = createRootRoute({
                 <div className="flex items-center gap-6">
                   <Link
                     to="/"
-                    className="flex items-center gap-3 text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+                    className="flex items-center gap-3 text-3xl font-bold text-base-content hover:opacity-80 transition-opacity"
                   >
-                    <img
-                      src={donutIcon}
-                      alt="Event Loop"
-                      className="w-10 h-10 object-contain"
-                    />
-                    Event Loop
+                    <div className="relative">
+                      <div className="absolute -inset-3 bg-gradient-to-r from-primary/50 via-secondary/50 to-accent/50 rounded-full blur-lg animate-pulse"></div>
+                      <div
+                        className="absolute -inset-2 bg-gradient-to-r from-accent/40 via-primary/40 to-secondary/40 rounded-full blur-md animate-pulse"
+                        style={{ animationDelay: "0.3s" }}
+                      ></div>
+                      <div
+                        className="absolute -inset-1 bg-gradient-to-r from-secondary/30 via-accent/30 to-primary/30 rounded-full blur-sm animate-pulse"
+                        style={{ animationDelay: "0.6s" }}
+                      ></div>
+                      <img
+                        src={donutIcon}
+                        alt="Event Loop"
+                        className="relative w-10 h-10 object-contain"
+                      />
+                    </div>
+                    <span className="bg-gradient-to-r from-base-content/95 to-base-content/80 bg-clip-text text-transparent">
+                      Event Loop
+                    </span>
                   </Link>
                   <nav className="hidden sm:flex items-center gap-1">
                     <Link

@@ -11,14 +11,25 @@ export function LandingPage() {
       {/* Hero Section */}
       <section className="py-12 px-4">
         <div className="mx-auto max-w-5xl text-center">
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <img
-              src={donutIcon}
-              alt="Event Loop"
-              className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain animate-pulse"
-            />
+          <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="relative">
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/60 via-secondary/60 to-accent/60 rounded-full blur-2xl animate-pulse"></div>
+              <div
+                className="absolute -inset-4 bg-gradient-to-r from-accent/50 via-primary/50 to-secondary/50 rounded-full blur-xl animate-pulse"
+                style={{ animationDelay: "0.4s" }}
+              ></div>
+              <div
+                className="absolute -inset-2 bg-gradient-to-r from-secondary/40 via-accent/40 to-primary/40 rounded-full blur-lg animate-pulse"
+                style={{ animationDelay: "0.8s" }}
+              ></div>
+              <img
+                src={donutIcon}
+                alt="Event Loop"
+                className="relative w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain"
+              />
+            </div>
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-base-content/90 to-base-content/75 bg-clip-text text-transparent">
                 Event Loop
               </span>
             </h1>
