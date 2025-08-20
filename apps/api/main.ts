@@ -5,6 +5,7 @@ import { cors } from "@hono/cors";
 import { eventsApi } from "./routes/events.ts";
 import { meApi } from "./routes/me.ts";
 import { dbApi } from "./routes/db.ts";
+import { commentsApi } from "./routes/comments.ts";
 
 const app = new Hono();
 
@@ -19,6 +20,7 @@ publicApi.get("/health", (c) => c.json({ status: "ok" }));
 app.route("/events", eventsApi);
 app.route("/me", meApi);
 app.route("/db", dbApi);
+app.route("/comments", commentsApi);
 
 // Mount public router and start server
 app.route("/", publicApi);

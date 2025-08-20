@@ -2,6 +2,7 @@ import React from "react";
 import { useParams } from "@tanstack/react-router";
 import { useAuth, SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "@tanstack/react-form";
 import { UiButton } from "../components/UiButton";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
@@ -50,6 +51,40 @@ export function EventDetailPage() {
     onMutate: () => setLoadingId(id),
     onSettled: () => setLoadingId(null),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["event", id] }),
+  });
+
+  // Comments query
+  const { data: commentsData } = useQuery({
+    queryKey: ["comments", id],
+    queryFn: async () => {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/comments/${id}`, {
+        headers: token ? { authorization: `Bearer ${token}` } : undefined,
+      });
+      if (!res.ok) throw new Error("Failed to fetch comments");
+      return (await res.json()) as { comments: any[] };
+    },
+  });
+
+  // Comment form
+  const commentForm = useForm({
+    defaultValues: {
+      content: "",
+    },
+    onSubmit: async ({ value }) => {
+      const token = await getToken();
+      const res = await fetch(`${API_URL}/comments/${id}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          ...(token ? { authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ content: value.content }),
+      });
+      if (!res.ok) throw new Error("Failed to post comment");
+      qc.invalidateQueries({ queryKey: ["comments", id] });
+      commentForm.reset();
+    },
   });
 
   if (isLoading) return <p>Loading…</p>;
@@ -174,6 +209,138 @@ export function EventDetailPage() {
               )}
             </div>
           </SignedIn>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="mx-auto max-w-4xl mt-8">
+        <div className="card bg-gradient-to-br from-base-100 to-base-200/50 shadow-xl border border-base-300">
+          <div className="card-body">
+            <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+              💬 Comments
+              {commentsData?.comments && (
+                <span className="badge badge-primary badge-sm">
+                  {commentsData.comments.length}
+                </span>
+              )}
+            </h3>
+
+            {/* Comment Form */}
+            <SignedIn>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  commentForm.handleSubmit();
+                }}
+                className="mb-6"
+              >
+                <commentForm.Field
+                  name="content"
+                  validators={{
+                    onChange: ({ value }) =>
+                      !value.trim() ? "Comment cannot be empty" : undefined,
+                  }}
+                  children={(field) => (
+                    <div className="form-control w-full">
+                      <textarea
+                        className="textarea textarea-bordered w-full min-h-[100px]"
+                        placeholder="Share your thoughts about this event..."
+                        value={field.state.value || ""}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onInput={(e) =>
+                          field.handleChange(
+                            (e.target as HTMLTextAreaElement).value
+                          )
+                        }
+                      />
+                      {field.state.meta.errors[0] && (
+                        <label className="label pt-1">
+                          <span className="label-text-alt text-error">
+                            {field.state.meta.errors[0]}
+                          </span>
+                        </label>
+                      )}
+                    </div>
+                  )}
+                />
+                <commentForm.Subscribe
+                  selector={(state) => [state.canSubmit, state.isSubmitting]}
+                  children={([canSubmit, isSubmitting]) => (
+                    <div className="flex justify-end mt-3">
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-sm"
+                        disabled={!canSubmit}
+                      >
+                        {isSubmitting ? "Posting..." : "💬 Post Comment"}
+                      </button>
+                    </div>
+                  )}
+                />
+              </form>
+            </SignedIn>
+
+            <SignedOut>
+              <div className="text-center p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20 mb-6">
+                <p className="text-base-content/70 mb-4">
+                  Sign in to join the conversation
+                </p>
+                <SignInButton />
+              </div>
+            </SignedOut>
+
+            {/* Comments List */}
+            <div className="space-y-4">
+              {commentsData?.comments?.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="text-4xl mb-2">💭</div>
+                  <p className="text-base-content/60">
+                    No comments yet. Be the first to share your thoughts!
+                  </p>
+                </div>
+              ) : (
+                commentsData?.comments?.map((comment: any) => (
+                  <div
+                    key={comment.id}
+                    className="card bg-base-200/50 border border-base-300"
+                  >
+                    <div className="card-body p-4">
+                      <div className="flex items-start gap-3">
+                        {comment.avatar_url ? (
+                          <img
+                            src={comment.avatar_url}
+                            alt={comment.name || comment.email}
+                            className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center ring-2 ring-primary/20">
+                            <span className="text-sm font-bold text-primary">
+                              {(comment.name || comment.email)[0].toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-base-content">
+                              {comment.name || comment.email}
+                            </span>
+                            <span className="text-xs text-base-content/60">
+                              {new Date(comment.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p className="text-base-content/80 whitespace-pre-wrap">
+                            {comment.content}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
