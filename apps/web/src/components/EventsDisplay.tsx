@@ -794,21 +794,16 @@ function EventCard({
 
           <div className="card-actions justify-end mt-auto">
             {event.signupMode === "external" && event.externalUrl ? (
-              <UiButton
-                asChild
-                variant="secondary"
-                size="sm"
+              <a
+                href={event.externalUrl}
+                target="_blank"
+                rel="noreferrer"
                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
               >
-                <a
-                  href={event.externalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
-                >
+                <UiButton variant="secondary" size="sm">
                   External Signup
-                </a>
-              </UiButton>
+                </UiButton>
+              </a>
             ) : isRegistered ? (
               <div className="flex items-center gap-1 text-success text-sm">
                 <svg

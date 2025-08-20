@@ -30,7 +30,7 @@ export function LandingPage() {
             </div>
             <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
               <span className="bg-gradient-to-r from-base-content/90 to-base-content/75 bg-clip-text text-transparent">
-                Event Loop
+                EventLoop
               </span>
             </h1>
           </div>
@@ -45,16 +45,23 @@ export function LandingPage() {
             casual meetups – build stronger connections outside the office.
           </p>
 
-          {/* Hero Image */}
-          <div className="relative mb-12">
-            <div className="relative overflow-hidden rounded-3xl shadow-2xl mx-auto max-w-4xl">
+          {/* Hero Image - Full Width */}
+          <div className="relative mb-12 -mx-2 sm:-mx-4 lg:-mx-6">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl">
               <img
                 src={eventLoopImage}
                 alt="People enjoying various team activities"
-                className="w-full h-auto object-cover"
+                className="w-full h-[35vh] sm:h-[40vh] lg:h-[45vh] object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-secondary/20"></div>
+
+              {/* Full-width overlay content */}
+              <div className="absolute bottom-8 left-8 right-8 text-white">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 drop-shadow-lg">
+                  Connect. Play. Grow Together.
+                </h2>
+              </div>
             </div>
 
             {/* Enhanced Background decoration */}
