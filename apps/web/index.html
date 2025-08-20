@@ -12,9 +12,10 @@
             "(prefers-color-scheme: dark)"
           ).matches;
           const theme = saved || (prefersDark ? "dark" : "light");
-          document.documentElement.dataset.theme = theme;
-          if (theme === "dark") document.documentElement.classList.add("dark");
-          else document.documentElement.classList.remove("dark");
+          const root = document.documentElement;
+          root.dataset.theme = theme;
+          if (theme === "dark") root.classList.add("dark");
+          else root.classList.remove("dark");
         } catch {}
       })();
     </script>

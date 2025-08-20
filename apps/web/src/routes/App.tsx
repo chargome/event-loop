@@ -16,6 +16,7 @@ import {
 } from "@tanstack/react-router";
 import { EventsPage } from "./EventsPage";
 import { MePage } from "./MePage";
+import { NewEventPage } from "./NewEventPage";
 import { DarkModeToggle } from "../components/DarkModeToggle";
 
 const rootRoute = createRootRoute({
@@ -36,6 +37,11 @@ const rootRoute = createRootRoute({
           >
             Me
           </Link>
+          <SignedIn>
+            <Link to="/events/new" className="btn btn-sm btn-secondary">
+              New Event
+            </Link>
+          </SignedIn>
           <DarkModeToggle />
           <SignedOut>
             <SignInButton />
@@ -64,7 +70,13 @@ const meRoute = createRoute({
   component: MePage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, meRoute]);
+const newEventRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/events/new",
+  component: NewEventPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, meRoute, newEventRoute]);
 
 export function App() {
   const router = createRouter({ routeTree });
