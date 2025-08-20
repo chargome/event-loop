@@ -337,6 +337,7 @@ function CalendarView({
   const now = new Date();
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
+  const [selectedDay, setSelectedDay] = React.useState<number | null>(null);
 
   // Generate calendar days
   const firstDay = new Date(currentYear, currentMonth, 1);
@@ -365,96 +366,260 @@ function CalendarView({
     });
   };
 
+  const selectedDayEvents = selectedDay ? getEventsForDay(selectedDay) : [];
+  const selectedDate = selectedDay
+    ? new Date(currentYear, currentMonth, selectedDay)
+    : null;
+
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <div className="card-body">
-        <h3 className="card-title justify-center text-2xl mb-6">
-          {firstDay.toLocaleDateString("en-US", {
-            month: "long",
-            year: "numeric",
-          })}
-        </h3>
+    <>
+      <div className="card bg-base-100 shadow-xl">
+        <div className="card-body">
+          <h3 className="card-title justify-center text-2xl mb-6">
+            {firstDay.toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </h3>
 
-        <div className="grid grid-cols-7 gap-2 mb-4">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div
-              key={day}
-              className="text-center font-medium text-base-content/60 p-2"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-7 gap-2">
-          {days.map((day, index) => {
-            const dayEvents = getEventsForDay(day);
-            const isToday =
-              day === now.getDate() &&
-              currentMonth === now.getMonth() &&
-              currentYear === now.getFullYear();
-
-            return (
+          <div className="grid grid-cols-7 gap-2 mb-4">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
               <div
-                key={index}
-                className={`min-h-[80px] p-1 rounded-lg border ${
-                  day
-                    ? isToday
-                      ? "bg-primary/10 border-primary"
-                      : dayEvents.length > 0
-                      ? "bg-success/10 border-success/30 hover:bg-success/20 cursor-pointer"
-                      : "bg-base-200/50 border-base-300 hover:bg-base-200"
-                    : "border-transparent"
-                } transition-all duration-200`}
+                key={day}
+                className="text-center font-medium text-base-content/60 p-2"
               >
-                {day && (
-                  <>
-                    <div
-                      className={`text-sm font-medium ${
-                        isToday ? "text-primary" : "text-base-content"
-                      }`}
-                    >
-                      {day}
-                    </div>
-                    <div className="space-y-1 mt-1">
-                      {dayEvents.slice(0, 2).map((event) => {
-                        const eventTime = new Date(
-                          event.startsAt
-                        ).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        });
-                        return (
-                          <Link
-                            key={event.id}
-                            to="/events/$id"
-                            params={{ id: String(event.id) }}
-                            className="block text-xs p-1 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-colors"
-                            title={`${event.title} at ${eventTime}`}
-                          >
-                            <div className="truncate font-medium">
-                              {event.title}
-                            </div>
-                            <div className="text-xs opacity-80">
-                              {eventTime}
-                            </div>
-                          </Link>
-                        );
-                      })}
-                      {dayEvents.length > 2 && (
-                        <div className="text-xs text-base-content/60">
-                          +{dayEvents.length - 2} more
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
+                {day}
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-2">
+            {days.map((day, index) => {
+              const dayEvents = getEventsForDay(day);
+              const isToday =
+                day === now.getDate() &&
+                currentMonth === now.getMonth() &&
+                currentYear === now.getFullYear();
+
+              return (
+                <div
+                  key={index}
+                  className={`min-h-[80px] p-1 rounded-lg border ${
+                    day
+                      ? isToday
+                        ? "bg-primary/10 border-primary"
+                        : dayEvents.length > 0
+                        ? "bg-success/10 border-success/30 hover:bg-success/20 cursor-pointer"
+                        : "bg-base-200/50 border-base-300 hover:bg-base-200"
+                      : "border-transparent"
+                  } transition-all duration-200`}
+                >
+                  {day && (
+                    <>
+                      <div
+                        className={`text-sm font-medium ${
+                          isToday ? "text-primary" : "text-base-content"
+                        }`}
+                      >
+                        {day}
+                      </div>
+                      <div className="space-y-1 mt-1">
+                        {dayEvents.slice(0, 2).map((event) => {
+                          const eventTime = new Date(
+                            event.startsAt
+                          ).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          });
+                          return (
+                            <Link
+                              key={event.id}
+                              to="/events/$id"
+                              params={{ id: String(event.id) }}
+                              className="block text-xs p-1 rounded bg-primary/20 text-primary hover:bg-primary/30 transition-colors"
+                              title={`${event.title} at ${eventTime}`}
+                            >
+                              <div className="truncate font-medium">
+                                {event.title}
+                              </div>
+                              <div className="text-xs opacity-80">
+                                {eventTime}
+                              </div>
+                            </Link>
+                          );
+                        })}
+                        {dayEvents.length > 2 && (
+                          <button
+                            className="text-xs text-base-content/60 hover:text-primary transition-colors cursor-pointer w-full text-left p-1 rounded hover:bg-primary/10"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSelectedDay(day);
+                            }}
+                          >
+                            +{dayEvents.length - 2} more
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Day Detail Modal */}
+      {selectedDay && selectedDate && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="card bg-base-100 shadow-2xl border border-base-300 w-full max-w-2xl max-h-[80vh] overflow-hidden">
+            <div className="card-body">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold">
+                  {selectedDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </h3>
+                <button
+                  className="btn btn-ghost btn-sm btn-circle"
+                  onClick={() => setSelectedDay(null)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="overflow-y-auto">
+                <div className="space-y-3">
+                  {selectedDayEvents.map((event: Event) => (
+                    <div
+                      key={event.id}
+                      className="card bg-base-200/50 border border-base-300"
+                    >
+                      <div className="card-body p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold">
+                            <Link
+                              to="/events/$id"
+                              params={{ id: String(event.id) }}
+                              className="hover:text-primary transition-colors"
+                              onClick={() => setSelectedDay(null)}
+                            >
+                              {event.title}
+                            </Link>
+                          </h4>
+                          <span className="text-sm text-base-content/60">
+                            {new Date(event.startsAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+
+                        {event.location && (
+                          <div className="text-sm text-base-content/70 mb-2">
+                            📍 {event.location}
+                          </div>
+                        )}
+
+                        {event.description && (
+                          <p className="text-sm text-base-content/60 mb-3">
+                            {event.description.length > 100
+                              ? `${event.description.slice(0, 100)}...`
+                              : event.description}
+                          </p>
+                        )}
+
+                        <div className="flex items-center justify-between">
+                          {event.attendees && event.attendees.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              {event.attendees
+                                .slice(0, 3)
+                                .map((attendee: any) => (
+                                  <div key={attendee.id}>
+                                    {attendee.avatar_url ? (
+                                      <img
+                                        src={attendee.avatar_url}
+                                        alt={attendee.name || "Attendee"}
+                                        className="w-6 h-6 rounded-full ring-2 ring-base-100 object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 ring-2 ring-base-100 flex items-center justify-center">
+                                        <span className="text-xs font-bold text-primary">
+                                          {(attendee.name ||
+                                            "A")[0].toUpperCase()}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              {(event.goingCount || 0) > 3 && (
+                                <span className="text-xs text-base-content/60 ml-1">
+                                  +{(event.goingCount || 0) - 3}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {event.signupMode === "external" &&
+                          event.externalUrl ? (
+                            <a
+                              href={event.externalUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn btn-secondary btn-sm"
+                            >
+                              External
+                            </a>
+                          ) : event.isRegistered ? (
+                            <div className="flex items-center gap-1 text-success text-sm">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                className="w-4 h-4"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.704 4.153a.75.75 0 01.143 1.052l-7.5 9.5a.75.75 0 01-1.127.06l-3.5-3.75a.75.75 0 111.096-1.024l2.91 3.121 6.96-8.819a.75.75 0 011.018-.14z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              Registered
+                            </div>
+                          ) : (
+                            <button
+                              className="btn btn-primary btn-sm"
+                              disabled={
+                                activeId === event.id &&
+                                registerMutation.isPending
+                              }
+                              onClick={(e: React.MouseEvent) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                registerMutation.mutate(event.id);
+                              }}
+                            >
+                              {activeId === event.id &&
+                              registerMutation.isPending
+                                ? "Registering..."
+                                : "Register"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

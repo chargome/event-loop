@@ -56,21 +56,15 @@ export function LandingPage() {
             </SignedOut>
             <SignedIn>
               <UiButton
-                asChild
                 size="lg"
                 variant="primary"
                 className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-none text-white font-bold px-10 shadow-lg hover:shadow-xl"
               >
-                <Link to="/events">🎯 View Events</Link>
+                <Link to="/events/new">🚀 Create an Event</Link>
               </UiButton>
             </SignedIn>
 
-            <UiButton
-              asChild
-              size="lg"
-              variant="ghost"
-              className="font-semibold"
-            >
+            <UiButton size="lg" variant="ghost" className="font-semibold">
               <Link to="/events">👀 Browse Events</Link>
             </UiButton>
           </div>
@@ -130,7 +124,6 @@ export function LandingPage() {
                 </SignedOut>
                 <SignedIn>
                   <UiButton
-                    asChild
                     size="lg"
                     variant="primary"
                     className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-none text-white font-bold px-10"

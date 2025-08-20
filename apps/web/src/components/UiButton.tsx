@@ -1,7 +1,7 @@
 import React from "react";
 
 type Variant = "primary" | "secondary" | "ghost";
-type Size = "sm" | "md";
+type Size = "sm" | "md" | "lg";
 
 type CommonProps = {
   variant?: Variant;
@@ -37,7 +37,7 @@ export function UiButton(props: ButtonProps | AnchorProps) {
       : variant === "secondary"
       ? "btn-secondary"
       : "btn-ghost";
-  const sizeCls = size === "sm" ? "btn-sm" : "";
+  const sizeCls = size === "sm" ? "btn-sm" : size === "lg" ? "btn-lg" : "";
   const loadingCls = loading ? "loading" : "";
   const cls = [base, variantCls, sizeCls, loadingCls, className]
     .filter(Boolean)
