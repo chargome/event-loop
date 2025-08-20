@@ -1,15 +1,10 @@
 import React from "react";
 import { useParams, Link } from "@tanstack/react-router";
-import {
-  useAuth,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  useUser,
-} from "@clerk/clerk-react";
+import { useAuth, SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import { UiButton } from "../components/UiButton";
+import { RestrictedSignIn } from "../components/RestrictedSignIn";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
 
@@ -151,24 +146,7 @@ export function EventDetailPage() {
     <>
       <SignedOut>
         <div className="mx-auto max-w-2xl">
-          <div className="card bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 border-2 border-primary/20 shadow-2xl">
-            <div className="card-body text-center py-16">
-              <div className="text-6xl mb-6">🎯</div>
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Event Details Are Private
-              </h2>
-              <p className="text-lg text-base-content/70 mb-8 max-w-lg mx-auto leading-relaxed">
-                Sign in to view event details, see who's attending, register for
-                events, and join the conversation.
-              </p>
-
-              <SignInButton>
-                <button className="btn btn-lg btn-primary bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-none text-white font-bold px-12 shadow-lg hover:shadow-xl">
-                  🚀 Sign In to Continue
-                </button>
-              </SignInButton>
-            </div>
-          </div>
+          <RestrictedSignIn />
         </div>
       </SignedOut>
 
@@ -288,26 +266,20 @@ export function EventDetailPage() {
                           {attendee.avatar_url ? (
                             <img
                               src={attendee.avatar_url}
-                              alt={attendee.name || attendee.email}
+                              alt={attendee.name || "Team member"}
                               className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
                             />
                           ) : (
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center ring-2 ring-primary/20">
                               <span className="text-sm font-bold text-primary">
-                                {(attendee.name ||
-                                  attendee.email)[0].toUpperCase()}
+                                {(attendee.name || "T")[0].toUpperCase()}
                               </span>
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
                             <div className="font-medium truncate">
-                              {attendee.name || attendee.email}
+                              {attendee.name || "Team Member"}
                             </div>
-                            {attendee.name && (
-                              <div className="text-xs text-base-content/60 truncate">
-                                {attendee.email}
-                              </div>
-                            )}
                           </div>
                         </div>
                       ))}
@@ -322,9 +294,9 @@ export function EventDetailPage() {
                   <div className="text-center p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20">
                     <h3 className="font-semibold mb-2">Join the Event! 🎉</h3>
                     <p className="text-base-content/70 mb-4">
-                      Sign in to register for this event
+                      Sign in with your @sentry.io email to register for this
+                      event
                     </p>
-                    <SignInButton />
                   </div>
                 </SignedOut>
 
@@ -464,9 +436,9 @@ export function EventDetailPage() {
                   <SignedOut>
                     <div className="text-center p-6 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20 mb-6">
                       <p className="text-base-content/70 mb-4">
-                        Sign in to join the conversation
+                        Sign in with your @sentry.io email to join the
+                        conversation
                       </p>
-                      <SignInButton />
                     </div>
                   </SignedOut>
 
@@ -490,21 +462,20 @@ export function EventDetailPage() {
                               {comment.avatar_url ? (
                                 <img
                                   src={comment.avatar_url}
-                                  alt={comment.name || comment.email}
+                                  alt={comment.name || "Team member"}
                                   className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20"
                                 />
                               ) : (
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center ring-2 ring-primary/20">
                                   <span className="text-sm font-bold text-primary">
-                                    {(comment.name ||
-                                      comment.email)[0].toUpperCase()}
+                                    {(comment.name || "T")[0].toUpperCase()}
                                   </span>
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
                                   <span className="font-medium text-base-content">
-                                    {comment.name || comment.email}
+                                    {comment.name || "Team Member"}
                                   </span>
                                   <span className="text-xs text-base-content/60">
                                     {new Date(

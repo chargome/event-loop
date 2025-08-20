@@ -19,10 +19,20 @@ export const requireAuth: MiddlewareHandler = async (c, next) => {
   const clerk = createClerkClient({ secretKey, publishableKey });
   const state = await clerk.authenticateRequest(c.req.raw);
   const auth = state.toAuth();
-  if (!auth.userId) return c.json({ error: "Unauthorized" }, 401);
+  if (!auth || !auth.userId) return c.json({ error: "Unauthorized" }, 401);
 
   // Fetch full user details from Clerk
   const user = await clerk.users.getUser(auth.userId);
+
+  // Check if user has a @sentry.io email address
+  const email = user.primaryEmailAddress?.emailAddress;
+  if (!email || !email.endsWith("@sentry.io")) {
+    return c.json(
+      { error: "Access restricted to @sentry.io email addresses" },
+      403
+    );
+  }
+
   c.set("user", user);
   c.set("auth", { userId: auth.userId, sessionId: auth.sessionId });
   await next();
