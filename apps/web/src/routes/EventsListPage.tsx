@@ -17,7 +17,7 @@ type Event = {
   externalUrl?: string | null;
 };
 
-export function EventsPage() {
+export function EventsListPage() {
   const { getToken } = useAuth();
   const { data, isLoading, error } = useQuery({
     queryKey: ["events"],
@@ -37,7 +37,7 @@ export function EventsPage() {
       events={events}
       isLoading={isLoading}
       error={error}
-      showTitle={false}
+      showTitle={true}
     />
   );
 }

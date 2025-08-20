@@ -8,6 +8,13 @@
       "when": 1755604093221,
       "tag": "0000_tranquil_wendell_rand",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755679145277,
+      "tag": "0001_handy_wildside",
+      "breakpoints": true
     }
   ]
 }

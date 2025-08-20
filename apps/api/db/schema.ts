@@ -27,6 +27,11 @@ export const events = pgTable("events", {
   location: varchar("location", { length: 255 }),
   startsAt: timestamp("starts_at", { withTimezone: false }).notNull(),
   capacity: integer("capacity"),
+  signupMode: varchar("signup_mode", { length: 20 })
+    .$type<"internal" | "external">()
+    .default("internal")
+    .notNull(),
+  externalUrl: text("external_url"),
   isPublic: boolean("is_public").default(true).notNull(),
   createdBy: integer("created_by").notNull(),
   createdAt: timestamp("created_at", { withTimezone: false })

@@ -20,6 +20,10 @@ export const requireAuth: MiddlewareHandler = async (c, next) => {
   const state = await clerk.authenticateRequest(c.req.raw);
   const auth = state.toAuth();
   if (!auth.userId) return c.json({ error: "Unauthorized" }, 401);
+
+  // Fetch full user details from Clerk
+  const user = await clerk.users.getUser(auth.userId);
+  c.set("user", user);
   c.set("auth", { userId: auth.userId, sessionId: auth.sessionId });
   await next();
 };

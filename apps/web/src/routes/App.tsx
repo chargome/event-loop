@@ -15,9 +15,12 @@ import {
   createRouter,
 } from "@tanstack/react-router";
 import { EventsPage } from "./EventsPage";
+import { EventsListPage } from "./EventsListPage";
 import { MePage } from "./MePage";
 import { NewEventPage } from "./NewEventPage";
+import { EventDetailPage } from "./EventDetailPage";
 import { DarkModeToggle } from "../components/DarkModeToggle";
+import { UiButton } from "../components/UiButton";
 
 const rootRoute = createRootRoute({
   component: () => (
@@ -25,22 +28,19 @@ const rootRoute = createRootRoute({
       <header className="flex items-center gap-4">
         <h1 className="text-2xl font-semibold">Event Loop</h1>
         <nav className="flex items-center gap-4 ml-auto">
-          <Link
-            to="/"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
+          <Link to="/" className="text-primary hover:underline">
+            Home
+          </Link>
+          <Link to="/events" className="text-primary hover:underline">
             Events
           </Link>
-          <Link
-            to="/me"
-            className="text-blue-600 dark:text-blue-400 hover:underline"
-          >
+          <Link to="/me" className="text-primary hover:underline">
             Me
           </Link>
           <SignedIn>
-            <Link to="/events/new" className="btn btn-sm btn-secondary">
-              New Event
-            </Link>
+            <UiButton asChild variant="secondary" size="sm">
+              <Link to="/events/new">New Event</Link>
+            </UiButton>
           </SignedIn>
           <DarkModeToggle />
           <SignedOut>
@@ -64,6 +64,12 @@ const indexRoute = createRoute({
   component: EventsPage,
 });
 
+const eventsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/events",
+  component: EventsListPage,
+});
+
 const meRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/me",
@@ -76,7 +82,19 @@ const newEventRoute = createRoute({
   component: NewEventPage,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, meRoute, newEventRoute]);
+const eventDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/events/$id",
+  component: EventDetailPage,
+});
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  eventsRoute,
+  meRoute,
+  newEventRoute,
+  eventDetailRoute,
+]);
 
 export function App() {
   const router = createRouter({ routeTree });

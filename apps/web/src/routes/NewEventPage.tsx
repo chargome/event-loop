@@ -38,8 +38,6 @@ export function NewEventPage() {
             ? new Date(value.startsAt).toISOString()
             : null,
           capacity: value.capacity === "" ? null : Number(value.capacity),
-          // TODO: remove when backend derives createdBy from auth
-          createdBy: 1,
         }),
       });
       if (!res.ok) throw new Error("Failed to create event");
