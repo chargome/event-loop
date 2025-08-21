@@ -1,4 +1,4 @@
-import { Hono } from "@hono/hono";
+import { Hono } from "hono";
 import { requireAuth, getAuth } from "../auth/clerk.ts";
 
 export const meApi = new Hono();

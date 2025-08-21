@@ -1,4 +1,4 @@
-import { Hono } from "@hono/hono";
+import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { requireAuth } from "../auth/clerk.ts";
 import { createDb } from "../db/client.ts";
