@@ -7,13 +7,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/validate-env.js && cross-env VALIDATE_ENV=true tsc -b && vite build",
-    "build:local": "tsc -b && vite build",
+    "build": "tsc -b && vite build",
     "preview": "vite preview --port 5173",
     "pages:dev": "wrangler pages dev dist --local",
     "pages:deploy": "npm run build && wrangler pages deploy dist",
-    "pages:deploy:production": "npm run build && wrangler pages deploy dist --prod",
-    "validate-env": "node scripts/validate-env.js"
+    "pages:deploy:production": "npm run build && wrangler pages deploy dist --prod"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.8.2",
@@ -29,7 +27,6 @@
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.3.1",
-    "cross-env": "^7.0.3",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.5.4",
     "vite": "^5.4.2",

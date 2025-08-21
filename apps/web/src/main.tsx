@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/clerk-react";
 
 import { App } from "./routes/App";
 import { OfficeProvider } from "./contexts/OfficeContext";
+import { EnvCheck } from "./components/EnvCheck";
 
 const queryClient = new QueryClient();
 
@@ -13,20 +14,17 @@ const root = createRoot(document.getElementById("root")!);
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as
   | string
   | undefined;
-if (!publishableKey) {
-  console.warn(
-    "VITE_CLERK_PUBLISHABLE_KEY is not set. Auth UI will not function."
-  );
-}
 
 root.render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={publishableKey ?? ""}>
-      <QueryClientProvider client={queryClient}>
-        <OfficeProvider>
-          <App />
-        </OfficeProvider>
-      </QueryClientProvider>
-    </ClerkProvider>
+    <EnvCheck>
+      <ClerkProvider publishableKey={publishableKey ?? ""}>
+        <QueryClientProvider client={queryClient}>
+          <OfficeProvider>
+            <App />
+          </OfficeProvider>
+        </QueryClientProvider>
+      </ClerkProvider>
+    </EnvCheck>
   </React.StrictMode>
 );
