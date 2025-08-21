@@ -5,6 +5,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "scripts": {
+    "install": "echo 'Dependencies managed by Deno'",
+    "build": "echo 'No build step required for Deno'"
+  },
   "dependencies": {
     "@clerk/backend": "^2.9.2",
     "@types/pg": "^8.15.5",
