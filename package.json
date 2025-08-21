@@ -4,14 +4,18 @@
   "license": "MIT",
   "private": true,
   "version": "0.0.0",
-  "description": "Monorepo for Event Loop - Deno + Hono API, React + TanStack web",
+  "description": "Monorepo for Event Loop - Cloudflare Workers API + Pages Web",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
-    "api:install": "echo 'Deno manages its own dependencies'",
-    "api:build": "cd apps/api && deno cache main.ts"
+    "deploy": "pnpm run deploy:api && pnpm run deploy:web",
+    "deploy:api": "pnpm --filter=@event-loop/api deploy",
+    "deploy:web": "pnpm --filter=@event-loop/web pages:deploy:production",
+    "deploy:preview": "pnpm run deploy:api:preview && pnpm run deploy:web:preview",
+    "deploy:api:preview": "pnpm --filter=@event-loop/api deploy",
+    "deploy:web:preview": "pnpm --filter=@event-loop/web pages:deploy"
   },
   "engines": {
     "node": ">=18.0.0",
