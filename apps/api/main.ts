@@ -1,7 +1,6 @@
 import { Hono } from "@hono/hono";
 import { logger } from "@hono/logger";
 import { cors } from "@hono/cors";
-import { secureHeaders } from "@hono/secure-headers";
 
 import { eventsApi } from "./routes/events.ts";
 import { meApi } from "./routes/me.ts";
@@ -11,20 +10,6 @@ import { commentsApi } from "./routes/comments.ts";
 const app = new Hono();
 
 app.use("*", logger());
-
-// Security headers
-app.use(
-  "*",
-  secureHeaders({
-    contentSecurityPolicy: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.clerk.com"],
-    },
-  })
-);
 
 // CORS configuration for production
 const corsOrigin = Deno.env.get("CORS_ORIGIN") || "http://localhost:5173";

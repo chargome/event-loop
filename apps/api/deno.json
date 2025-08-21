@@ -15,7 +15,6 @@
     "@hono/hono": "jsr:@hono/hono@^4",
     "@hono/logger": "jsr:@hono/hono@^4/logger",
     "@hono/cors": "jsr:@hono/hono@^4/cors",
-    "@hono/secure-headers": "jsr:@hono/hono@^4/secure-headers",
     "@types/pg": "npm:@types/pg@^8.15.5",
     "drizzle-kit": "npm:drizzle-kit@^0.31.4",
     "drizzle-orm": "npm:drizzle-orm@^0.44.4",
