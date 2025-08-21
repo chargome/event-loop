@@ -1,27 +1,21 @@
 import { Hono } from "hono";
-import { requireAuth } from "../auth/clerk.ts";
+import { requireAuth } from "../auth/clerk";
+import { createDb } from "../db/client";
+import type { Env, Variables } from "../main";
 
-export const dbApi = new Hono();
+export const dbApi = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 dbApi.use("*", requireAuth);
 
 dbApi.get("/health", async (c) => {
-  const databaseUrl = Deno.env.get("DATABASE_URL");
-  if (!databaseUrl) {
-    return c.json({ ok: false, error: "DATABASE_URL not set" }, 500);
-  }
-
-  const { Client } = await import("pg");
-  const client = new Client({ connectionString: databaseUrl });
   try {
-    await client.connect();
-    const result = await client.query("select 1 as ok");
-    await client.end();
-    return c.json({ ok: true, result: result.rows[0] });
+    const { db, client } = createDb(c);
+
+    // Simple health check query for D1
+    const result = await client.prepare("SELECT 1 as ok").first();
+
+    return c.json({ ok: true, result });
   } catch (error) {
-    try {
-      await client.end();
-    } catch {}
     return c.json({ ok: false, error: String(error) }, 500);
   }
 });

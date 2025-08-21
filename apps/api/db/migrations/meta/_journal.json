@@ -1,47 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1755604093221,
-      "tag": "0000_tranquil_wendell_rand",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1755679145277,
-      "tag": "0001_handy_wildside",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1755690123751,
-      "tag": "0002_brief_pet_avengers",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1755690159014,
-      "tag": "0003_outgoing_titanium_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1755691070273,
-      "tag": "0004_parched_overlord",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1755691669235,
-      "tag": "0005_eminent_lester",
+      "version": "6",
+      "when": 1755773420088,
+      "tag": "0000_dark_thunderbolt_ross",
       "breakpoints": true
     }
   ]

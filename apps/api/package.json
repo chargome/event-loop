@@ -6,14 +6,26 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "install": "echo 'Dependencies managed by Deno - skipping npm install'",
-    "build": "deno cache main.ts"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "echo 'Build handled by wrangler deploy'",
+    "db:create": "wrangler d1 create event-loop-db",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply event-loop-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply event-loop-db --remote",
+    "db:studio": "drizzle-kit studio",
+    "preview": "wrangler dev --remote"
   },
   "dependencies": {
-    "@clerk/backend": "^2.9.2",
-    "@types/pg": "^8.15.5",
-    "drizzle-kit": "^0.31.4",
-    "drizzle-orm": "^0.44.4",
-    "pg": "^8.16.3"
+    "@clerk/backend": "^2.9.3",
+    "drizzle-orm": "^0.36.4",
+    "hono": "^4.6.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "@types/node": "^22.17.2",
+    "drizzle-kit": "^0.28.1",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.90.0"
   }
 }

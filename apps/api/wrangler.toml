@@ -1,0 +1,32 @@
+name = "event-loop-api"
+main = "main.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "event-loop-db"
+database_id = "e2efb0a9-bab5-4917-848a-e3460fbd7ff0"
+migrations_dir = "db/migrations"
+
+[env.development]
+vars = {}
+# For local development, you can use a local SQLite file
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "event-loop-db-dev"
+database_id = "local"
+
+[env.production]
+vars = {}
+# Production will use the actual D1 database
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "event-loop-db"
+database_id = "e2efb0a9-bab5-4917-848a-e3460fbd7ff0"
+
+# Environment variables will be set via wrangler secrets
+# Example: wrangler secret put CLERK_SECRET_KEY
+# Example: wrangler secret put CLERK_PUBLISHABLE_KEY
+# Example: wrangler secret put CORS_ORIGIN

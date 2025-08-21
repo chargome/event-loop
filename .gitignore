@@ -2,21 +2,28 @@
 node_modules/
 dist/
 *.log
+package-lock.json
 
-# Deno
-.deno/
-.deno_dir/
+# Cloudflare Workers & Pages
+.wrangler/
+.dev.vars
+*.dev.vars
 
-# Env
+# Environment Variables
 .env
 .env.*
 !.env.example
+!.env.development.example
+!.env.production.example
 !apps/**/.env.example
 
 # Editor
 .vscode/
 *.swp
 .DS_Store
+
+# Build outputs
+*.tsbuildinfo
 
 # Docker
 docker-data/

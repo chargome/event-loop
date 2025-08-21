@@ -1,1 +1,0 @@
-ALTER TABLE "events" ADD COLUMN "status" varchar(20) DEFAULT 'active' NOT NULL;

@@ -1,62 +1,56 @@
 import {
-  pgTable,
-  serial,
-  text,
-  varchar,
-  timestamp,
+  sqliteTable,
   integer,
-  boolean,
+  text,
   uniqueIndex,
   primaryKey,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
+export const users = sqliteTable("users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  email: text("email").notNull().unique(),
   name: text("name"),
   avatarUrl: text("avatar_url"),
-  createdAt: timestamp("created_at", { withTimezone: false })
-    .defaultNow()
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(unixepoch())`)
     .notNull(),
 });
 
-export const events = pgTable("events", {
-  id: serial("id").primaryKey(),
-  title: varchar("title", { length: 200 }).notNull(),
+export const events = sqliteTable("events", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
   description: text("description"),
-  location: varchar("location", { length: 255 }),
-  office: varchar("office", { length: 10 })
-    .$type<"VIE" | "SFO" | "YYZ" | "AMS" | "SEA">()
+  location: text("location"),
+  office: text("office", { enum: ["VIE", "SFO", "YYZ", "AMS", "SEA"] })
     .default("VIE")
     .notNull(),
-  startsAt: timestamp("starts_at", { withTimezone: false }).notNull(),
+  startsAt: integer("starts_at", { mode: "timestamp" }).notNull(),
   capacity: integer("capacity"),
-  signupMode: varchar("signup_mode", { length: 20 })
-    .$type<"internal" | "external">()
+  signupMode: text("signup_mode", { enum: ["internal", "external"] })
     .default("internal")
     .notNull(),
   externalUrl: text("external_url"),
-  isPublic: boolean("is_public").default(true).notNull(),
-  status: varchar("status", { length: 20 })
-    .$type<"active" | "cancelled">()
+  isPublic: integer("is_public", { mode: "boolean" }).default(true).notNull(),
+  status: text("status", { enum: ["active", "cancelled"] })
     .default("active")
     .notNull(),
   createdBy: integer("created_by").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: false })
-    .defaultNow()
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(unixepoch())`)
     .notNull(),
 });
 
-export const rsvps = pgTable(
+export const rsvps = sqliteTable(
   "rsvps",
   {
     userId: integer("user_id").notNull(),
     eventId: integer("event_id").notNull(),
-    status: varchar("status", { length: 20 })
-      .$type<"going" | "waitlist" | "cancelled">()
-      .notNull(),
-    createdAt: timestamp("created_at", { withTimezone: false })
-      .defaultNow()
+    status: text("status", {
+      enum: ["going", "waitlist", "cancelled"],
+    }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .default(sql`(unixepoch())`)
       .notNull(),
   },
   (table) => ({
@@ -68,15 +62,15 @@ export const rsvps = pgTable(
   })
 );
 
-export const comments = pgTable("comments", {
-  id: serial("id").primaryKey(),
+export const comments = sqliteTable("comments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
   eventId: integer("event_id").notNull(),
   userId: integer("user_id").notNull(),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: false })
-    .defaultNow()
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(unixepoch())`)
     .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: false })
-    .defaultNow()
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(unixepoch())`)
     .notNull(),
 });

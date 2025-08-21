@@ -1,5 +1,6 @@
 import { createClerkClient } from "@clerk/backend";
-import type { Context, MiddlewareHandler } from "@hono/hono";
+import type { Context, MiddlewareHandler } from "hono";
+import type { Env, Variables } from "../main";
 
 export type AuthClaims = {
   userId?: string;
@@ -11,9 +12,12 @@ export const getAuth = (c: Context): AuthClaims | null => {
   return (c.get("auth") as AuthClaims) ?? null;
 };
 
-export const requireAuth: MiddlewareHandler = async (c, next) => {
-  const secretKey = Deno.env.get("CLERK_SECRET_KEY");
-  const publishableKey = Deno.env.get("CLERK_PUBLISHABLE_KEY");
+export const requireAuth: MiddlewareHandler<{
+  Bindings: Env;
+  Variables: Variables;
+}> = async (c, next) => {
+  const secretKey = c.env.CLERK_SECRET_KEY;
+  const publishableKey = c.env.CLERK_PUBLISHABLE_KEY;
   if (!secretKey || !publishableKey) throw new Error("Missing Clerk keys");
 
   const clerk = createClerkClient({ secretKey, publishableKey });

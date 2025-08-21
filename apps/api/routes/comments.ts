@@ -1,46 +1,50 @@
 import { Hono } from "hono";
-import { eq } from "drizzle-orm";
-import { requireAuth } from "../auth/clerk.ts";
-import { createDb } from "../db/client.ts";
-import { comments, users } from "../db/schema.ts";
+import { eq, desc } from "drizzle-orm";
+import { requireAuth } from "../auth/clerk";
+import { createDb } from "../db/client";
+import { comments, users } from "../db/schema";
+import type { Env, Variables } from "../main";
 
-export const commentsApi = new Hono();
+export const commentsApi = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 // Protect all comment routes
 commentsApi.use("*", requireAuth);
 
 // GET /comments/:eventId - Get comments for an event
 commentsApi.get("/:eventId", async (c) => {
-  const { db, client } = await createDb();
+  const { db } = createDb(c);
   try {
     const eventId = Number(c.req.param("eventId"));
     if (!Number.isFinite(eventId))
       return c.json({ error: "Invalid event ID" }, 400);
 
-    // Get comments with user info
-    const commentsRes = await client.query(
-      `select c.id, c.content, c.created_at, c.updated_at,
-              u.id as user_id, u.name, u.email, u.avatar_url
-       from comments c
-       join users u on c.user_id = u.id
-       where c.event_id = $1
-       order by c.created_at desc`,
-      [eventId]
-    );
+    // Get comments with user info using Drizzle ORM joins
+    const commentsRes = await db
+      .select({
+        id: comments.id,
+        content: comments.content,
+        created_at: comments.createdAt,
+        updated_at: comments.updatedAt,
+        user_id: users.id,
+        name: users.name,
+        email: users.email,
+        avatar_url: users.avatarUrl,
+      })
+      .from(comments)
+      .innerJoin(users, eq(comments.userId, users.id))
+      .where(eq(comments.eventId, eventId))
+      .orderBy(desc(comments.createdAt));
 
-    await client.end();
-    return c.json({ comments: commentsRes.rows });
+    return c.json({ comments: commentsRes });
   } catch (error) {
-    try {
-      await client.end();
-    } catch {}
+    console.error("Error fetching comments:", error);
     return c.json({ error: String(error) }, 500);
   }
 });
 
 // POST /comments/:eventId - Add a comment to an event
 commentsApi.post("/:eventId", async (c) => {
-  const { db, client } = await createDb();
+  const { db } = createDb(c);
   try {
     const eventId = Number(c.req.param("eventId"));
     if (!Number.isFinite(eventId))
@@ -64,45 +68,48 @@ commentsApi.post("/:eventId", async (c) => {
     let dbUserId: number;
     if (existingUsers.length === 0) {
       // Create user record
-      const newUser = await db
+      const [newUser] = await db
         .insert(users)
         .values({
           email: user.primaryEmailAddress?.emailAddress || "",
           name: user.fullName || null,
           avatarUrl: user.imageUrl || null,
         })
-        .returning();
-      dbUserId = newUser[0].id;
+        .returning({ id: users.id });
+      dbUserId = newUser.id;
     } else {
       dbUserId = existingUsers[0].id;
     }
 
     // Insert comment
-    const insertedComment = await db
+    const [insertedComment] = await db
       .insert(comments)
       .values({
         eventId,
         userId: dbUserId,
         content,
       })
-      .returning();
+      .returning({ id: comments.id });
 
     // Get the comment with user info for response
-    const commentWithUser = await client.query(
-      `select c.id, c.content, c.created_at, c.updated_at,
-              u.id as user_id, u.name, u.email, u.avatar_url
-       from comments c
-       join users u on c.user_id = u.id
-       where c.id = $1`,
-      [insertedComment[0].id]
-    );
+    const [commentWithUser] = await db
+      .select({
+        id: comments.id,
+        content: comments.content,
+        created_at: comments.createdAt,
+        updated_at: comments.updatedAt,
+        user_id: users.id,
+        name: users.name,
+        email: users.email,
+        avatar_url: users.avatarUrl,
+      })
+      .from(comments)
+      .innerJoin(users, eq(comments.userId, users.id))
+      .where(eq(comments.id, insertedComment.id));
 
-    await client.end();
-    return c.json({ comment: commentWithUser.rows[0] }, 201);
+    return c.json({ comment: commentWithUser }, 201);
   } catch (error) {
-    try {
-      await client.end();
-    } catch {}
+    console.error("Error creating comment:", error);
     return c.json({ error: String(error) }, 500);
   }
 });

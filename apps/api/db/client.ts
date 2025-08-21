@@ -1,15 +1,8 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Client } from "pg";
+import { drizzle } from "drizzle-orm/d1";
+import type { Context } from "hono";
+import type { Env, Variables } from "../main";
 
-export async function createDb() {
-  const databaseUrl = Deno.env.get("DATABASE_URL");
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL not set");
-  }
-
-  const client = new Client({ connectionString: databaseUrl });
-  await client.connect();
-  const db = drizzle(client);
-
-  return { db, client } as const;
+export function createDb(c: Context<{ Bindings: Env; Variables: Variables }>) {
+  const db = drizzle(c.env.DB);
+  return { db, client: c.env.DB } as const;
 }

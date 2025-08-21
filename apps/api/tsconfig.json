@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "declaration": false,
+    "outDir": "dist",
+    "rootDir": ".",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "types": ["@cloudflare/workers-types", "node"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "db/migrations"]
+}

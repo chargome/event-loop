@@ -1,7 +1,8 @@
 import { Hono } from "hono";
-import { requireAuth, getAuth } from "../auth/clerk.ts";
+import { requireAuth, getAuth } from "../auth/clerk";
+import type { Env, Variables } from "../main";
 
-export const meApi = new Hono();
+export const meApi = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 meApi.use("*", requireAuth);
 
