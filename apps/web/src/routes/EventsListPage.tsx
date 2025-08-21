@@ -3,8 +3,9 @@ import { useAuth, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { EventsDisplay } from "../components/EventsDisplay";
 import { RestrictedSignIn } from "../components/RestrictedSignIn";
 import { useOffice } from "../contexts/OfficeContext";
+import { config } from "../config";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+const API_URL = import.meta.env.VITE_API_URL || config.API_URL;
 
 type Event = {
   id: number;

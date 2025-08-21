@@ -7,8 +7,9 @@ import {
   UserProfile,
 } from "@clerk/clerk-react";
 import { useQuery } from "@tanstack/react-query";
+import { config } from "../config";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+const API_URL = import.meta.env.VITE_API_URL || config.API_URL;
 
 export function MePage() {
   const { getToken } = useAuth();

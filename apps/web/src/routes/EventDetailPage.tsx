@@ -5,8 +5,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import { UiButton } from "../components/UiButton";
 import { RestrictedSignIn } from "../components/RestrictedSignIn";
+import { config } from "../config";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+const API_URL = import.meta.env.VITE_API_URL || config.API_URL;
 
 export function EventDetailPage() {
   const params = useParams({ from: "/events/$id" as any }) as { id: string };

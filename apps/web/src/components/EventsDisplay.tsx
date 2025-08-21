@@ -3,8 +3,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useAuth, SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
 import { UiButton } from "./UiButton";
+import { config } from "../config";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+const API_URL = import.meta.env.VITE_API_URL || config.API_URL;
 
 type Event = {
   id: number;
