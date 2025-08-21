@@ -6,8 +6,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "install": "echo 'Dependencies managed by Deno'",
-    "build": "echo 'No build step required for Deno'"
+    "install": "echo 'Dependencies managed by Deno - skipping npm install'",
+    "build": "deno cache main.ts"
   },
   "dependencies": {
     "@clerk/backend": "^2.9.2",

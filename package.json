@@ -10,8 +10,8 @@
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
-    "api:install": "cd apps/api && npm install",
-    "api:build": "cd apps/api && npm run build"
+    "api:install": "echo 'Deno manages its own dependencies'",
+    "api:build": "cd apps/api && deno cache main.ts"
   },
   "engines": {
     "node": ">=18.0.0",
