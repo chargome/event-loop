@@ -1,6 +1,6 @@
 import { Hono } from "@hono/hono";
-import { logger } from "@hono/logger";
-import { cors } from "@hono/cors";
+import { logger } from "@hono/hono/logger";
+import { cors } from "@hono/hono/cors";
 
 import { eventsApi } from "./routes/events.ts";
 import { meApi } from "./routes/me.ts";
