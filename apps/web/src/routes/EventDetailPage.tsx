@@ -55,8 +55,16 @@ export function EventDetailPage() {
       return res.json();
     },
     onMutate: () => setLoadingId(id),
+    onSuccess: () => {
+      // Invalidate the specific event query and force refetch
+      qc.invalidateQueries({ queryKey: ["event", Number(id)] });
+      qc.invalidateQueries({ queryKey: ["events"] });
+      qc.refetchQueries({ queryKey: ["event", Number(id)] });
+    },
+    onError: (error) => {
+      console.error("Registration failed:", error);
+    },
     onSettled: () => setLoadingId(null),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["event", id] }),
   });
 
   const deregisterMutation = useMutation({
@@ -73,8 +81,16 @@ export function EventDetailPage() {
       return res.json();
     },
     onMutate: () => setLoadingId(id),
+    onSuccess: () => {
+      // Invalidate the specific event query and force refetch
+      qc.invalidateQueries({ queryKey: ["event", Number(id)] });
+      qc.invalidateQueries({ queryKey: ["events"] });
+      qc.refetchQueries({ queryKey: ["event", Number(id)] });
+    },
+    onError: (error) => {
+      console.error("Deregistration failed:", error);
+    },
     onSettled: () => setLoadingId(null),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["event", id] }),
   });
 
   // Delete event mutation
@@ -138,10 +154,8 @@ export function EventDetailPage() {
   const isCreator = data.isCreator;
   const isCancelled = e.status === "cancelled";
 
-  // Check if current user is registered for this event
-  const isRegistered = data.attendees?.some(
-    (attendee) => attendee.email === user?.primaryEmailAddress?.emailAddress
-  );
+    // Check if current user is registered for this event
+  const isRegistered = data.event.isRegistered;
 
   return (
     <>

@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useAuth, SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
 import { UiButton } from "./UiButton";
 import { config } from "../config";
+import { useOffice } from "../contexts/OfficeContext";
 
 const API_URL = import.meta.env.VITE_API_URL || config.API_URL;
 
@@ -45,11 +46,9 @@ export function EventsDisplay({
   showTitle = true,
 }: EventsDisplayProps) {
   const { getToken } = useAuth();
+  const { selectedOffice } = useOffice();
   const qc = useQueryClient();
   const [activeId, setActiveId] = React.useState<number | null>(null);
-  const [registeredIds, setRegisteredIds] = React.useState<Set<number>>(
-    new Set()
-  );
   const [viewMode, setViewMode] = React.useState<ViewMode>("cards");
   const [timeFilter, setTimeFilter] = React.useState<TimeFilter>("all");
 
@@ -66,10 +65,19 @@ export function EventsDisplay({
       if (!res.ok) throw new Error("Failed to register");
       return res.json();
     },
-    onMutate: (id) => setActiveId(id),
-    onSuccess: (_data, id) => {
-      setRegisteredIds((prev) => new Set(prev).add(id));
+    onMutate: (id) => {
+      setActiveId(id);
+    },
+    onSuccess: () => {
+      // Invalidate specific office query and all events queries
+      qc.invalidateQueries({ queryKey: ["events", selectedOffice] });
       qc.invalidateQueries({ queryKey: ["events"] });
+      qc.invalidateQueries({ queryKey: ["event"] });
+      // Force refetch of current office query
+      qc.refetchQueries({ queryKey: ["events", selectedOffice] });
+    },
+    onError: (error, id) => {
+      console.error("Registration failed:", error);
     },
     onSettled: () => setActiveId(null),
   });
@@ -87,14 +95,19 @@ export function EventsDisplay({
       if (!res.ok) throw new Error("Failed to deregister");
       return res.json();
     },
-    onMutate: (id) => setActiveId(id),
-    onSuccess: (_data, id) => {
-      setRegisteredIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(id);
-        return newSet;
-      });
+    onMutate: (id) => {
+      setActiveId(id);
+    },
+    onSuccess: () => {
+      // Invalidate specific office query and all events queries
+      qc.invalidateQueries({ queryKey: ["events", selectedOffice] });
       qc.invalidateQueries({ queryKey: ["events"] });
+      qc.invalidateQueries({ queryKey: ["event"] });
+      // Force refetch of current office query
+      qc.refetchQueries({ queryKey: ["events", selectedOffice] });
+    },
+    onError: (error, id) => {
+      console.error("Deregistration failed:", error);
     },
     onSettled: () => setActiveId(null),
   });
@@ -246,7 +259,6 @@ export function EventsDisplay({
             pastEvents={pastEvents}
             timeFilter={timeFilter}
             activeId={activeId}
-            registeredIds={registeredIds}
             registerMutation={registerMutation}
             deregisterMutation={deregisterMutation}
           />
@@ -256,7 +268,6 @@ export function EventsDisplay({
           <CalendarView
             events={filteredEvents}
             activeId={activeId}
-            registeredIds={registeredIds}
             registerMutation={registerMutation}
             deregisterMutation={deregisterMutation}
           />
@@ -273,7 +284,6 @@ function CardsView({
   pastEvents,
   timeFilter,
   activeId,
-  registeredIds,
   registerMutation,
   deregisterMutation,
 }: {
@@ -282,7 +292,6 @@ function CardsView({
   pastEvents: Event[];
   timeFilter: TimeFilter;
   activeId: number | null;
-  registeredIds: Set<number>;
   registerMutation: any;
   deregisterMutation: any;
 }) {
@@ -305,7 +314,6 @@ function CardsView({
             <EventsGrid
               events={upcomingEvents}
               activeId={activeId}
-              registeredIds={registeredIds}
               registerMutation={registerMutation}
               deregisterMutation={deregisterMutation}
             />
@@ -325,7 +333,6 @@ function CardsView({
             <EventsGrid
               events={pastEvents}
               activeId={activeId}
-              registeredIds={registeredIds}
               registerMutation={registerMutation}
               deregisterMutation={deregisterMutation}
             />
@@ -349,7 +356,6 @@ function CardsView({
     <EventsGrid
       events={events}
       activeId={activeId}
-      registeredIds={registeredIds}
       registerMutation={registerMutation}
       deregisterMutation={deregisterMutation}
     />
@@ -360,13 +366,11 @@ function CardsView({
 function CalendarView({
   events,
   activeId,
-  registeredIds,
   registerMutation,
   deregisterMutation,
 }: {
   events: Event[];
   activeId: number | null;
-  registeredIds: Set<number>;
   registerMutation: any;
   deregisterMutation: any;
 }) {
@@ -531,8 +535,7 @@ function CalendarView({
               <div className="overflow-y-auto">
                 <div className="space-y-3">
                   {selectedDayEvents.map((event: Event) => {
-                    const isRegistered =
-                      event.isRegistered || registeredIds.has(event.id);
+                    const isRegistered = event.isRegistered;
                     return (
                       <div
                         key={event.id}
@@ -613,8 +616,7 @@ function CalendarView({
                               >
                                 External
                               </a>
-                            ) : event.isRegistered ||
-                              registeredIds.has(event.id) ? (
+                            ) : event.isRegistered ? (
                               <div className="flex items-center gap-1 text-success text-sm">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -692,13 +694,11 @@ function CalendarView({
 function EventsGrid({
   events,
   activeId,
-  registeredIds,
   registerMutation,
   deregisterMutation,
 }: {
   events: Event[];
   activeId: number | null;
-  registeredIds: Set<number>;
   registerMutation: any;
   deregisterMutation: any;
 }) {
@@ -719,7 +719,6 @@ function EventsGrid({
           key={event.id}
           event={event}
           activeId={activeId}
-          registeredIds={registeredIds}
           registerMutation={registerMutation}
           deregisterMutation={deregisterMutation}
         />
@@ -732,19 +731,17 @@ function EventsGrid({
 function EventCard({
   event,
   activeId,
-  registeredIds,
   registerMutation,
   deregisterMutation,
 }: {
   event: Event;
   activeId: number | null;
-  registeredIds: Set<number>;
   registerMutation: any;
   deregisterMutation: any;
 }) {
   const eventDate = new Date(event.startsAt);
   const isPast = eventDate < new Date();
-  const isRegistered = event.isRegistered || registeredIds.has(event.id);
+  const isRegistered = event.isRegistered;
   const attendees = event.attendees || [];
   const goingCount = event.goingCount || 0;
 

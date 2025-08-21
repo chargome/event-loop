@@ -124,6 +124,7 @@ eventsApi.get("/:id", async (c) => {
 
     // Check if current user is registered
     let userRsvp = null;
+    let isRegistered = false;
     if (dbUserId) {
       const registration = await db
         .select()
@@ -132,6 +133,7 @@ eventsApi.get("/:id", async (c) => {
 
       if (registration.length > 0) {
         userRsvp = registration[0];
+        isRegistered = registration[0].status === "going";
       }
     }
 
@@ -157,11 +159,15 @@ eventsApi.get("/:id", async (c) => {
       event: {
         ...event,
         userRsvp,
-        attendees: {
+        isRegistered,
+        attendees: going, // Frontend expects flat array of going attendees
+        attendeesDetailed: {
           going,
           waitlist,
         },
       },
+      goingCount: going.length,
+      attendees: going, // Also provide at top level for backwards compatibility
     });
   } catch (error) {
     console.error("Error fetching event:", error);
@@ -401,6 +407,128 @@ eventsApi.post("/:id/rsvp", async (c) => {
 
 // DELETE /events/:id/rsvp
 eventsApi.delete("/:id/rsvp", async (c) => {
+  const { db } = createDb(c);
+  try {
+    const eventId = Number(c.req.param("id"));
+    if (isNaN(eventId)) return c.json({ error: "Invalid event ID" }, 400);
+
+    // Get user info from Clerk auth context
+    const user = c.get("user");
+    if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
+
+    // Find user in our database
+    const existingUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, user.primaryEmailAddress?.emailAddress || ""));
+
+    if (existingUsers.length === 0) {
+      return c.json({ error: "User not found" }, 404);
+    }
+    const dbUserId = existingUsers[0].id;
+
+    // Delete RSVP
+    await db
+      .delete(rsvps)
+      .where(and(eq(rsvps.userId, dbUserId), eq(rsvps.eventId, eventId)));
+
+    return c.json({ message: "RSVP cancelled successfully" });
+  } catch (error) {
+    console.error("Error cancelling RSVP:", error);
+    return c.json({ error: String(error) }, 500);
+  }
+});
+
+// POST /events/:id/register (alias for rsvp)
+eventsApi.post("/:id/register", async (c) => {
+  const { db } = createDb(c);
+  try {
+    const eventId = Number(c.req.param("id"));
+    if (isNaN(eventId)) return c.json({ error: "Invalid event ID" }, 400);
+
+    // Get user info from Clerk auth context
+    const user = c.get("user");
+    if (!user?.id) return c.json({ error: "Unauthorized" }, 401);
+
+    // Find or create user in our database
+    const existingUsers = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, user.primaryEmailAddress?.emailAddress || ""));
+
+    let dbUserId;
+    if (existingUsers.length > 0) {
+      dbUserId = existingUsers[0].id;
+    } else {
+      // Create new user
+      const [newUser] = await db
+        .insert(users)
+        .values({
+          email: user.primaryEmailAddress?.emailAddress || "",
+          name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || null,
+          avatarUrl: user.imageUrl || null,
+        })
+        .returning({ id: users.id });
+      dbUserId = newUser.id;
+    }
+
+    // Check if event exists
+    const eventRows = await db
+      .select()
+      .from(events)
+      .where(eq(events.id, eventId));
+    if (eventRows.length === 0) {
+      return c.json({ error: "Event not found" }, 404);
+    }
+    const event = eventRows[0];
+
+    // Check current capacity
+    let status = "going";
+    if (event.capacity) {
+      const [countRes] = await db
+        .select({ count: count() })
+        .from(rsvps)
+        .where(and(eq(rsvps.eventId, eventId), eq(rsvps.status, "going")));
+
+      const currentCount = countRes?.count ?? 0;
+      if (currentCount >= event.capacity) {
+        status = "waitlist";
+      }
+    }
+
+    // Insert or update RSVP
+    const existingRsvp = await db
+      .select()
+      .from(rsvps)
+      .where(and(eq(rsvps.userId, dbUserId), eq(rsvps.eventId, eventId)));
+
+    if (existingRsvp.length > 0) {
+      await db
+        .update(rsvps)
+        .set({ status: status as any })
+        .where(and(eq(rsvps.userId, dbUserId), eq(rsvps.eventId, eventId)));
+    } else {
+      await db.insert(rsvps).values({
+        userId: dbUserId,
+        eventId,
+        status: status as any,
+      });
+    }
+
+    return c.json({
+      status,
+      message: `Successfully ${
+        status === "waitlist" ? "added to waitlist" : "registered"
+      }`,
+    });
+  } catch (error) {
+    console.error("Error creating RSVP:", error);
+    return c.json({ error: String(error) }, 500);
+  }
+});
+
+// DELETE /events/:id/register (alias for rsvp cancellation)
+eventsApi.delete("/:id/register", async (c) => {
   const { db } = createDb(c);
   try {
     const eventId = Number(c.req.param("id"));

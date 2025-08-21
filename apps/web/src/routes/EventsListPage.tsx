@@ -31,7 +31,7 @@ export function EventsListPage() {
   const { getToken, isSignedIn } = useAuth();
   const { selectedOffice } = useOffice();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["events", selectedOffice],
     queryFn: async () => {
       if (!isSignedIn) throw new Error("Not authenticated");
@@ -56,11 +56,13 @@ export function EventsListPage() {
       </SignedOut>
 
       <SignedIn>
+
+
         <EventsDisplay
           events={data?.events ?? []}
           isLoading={isLoading}
           error={error}
-          showTitle={true}
+          showTitle={false}
         />
       </SignedIn>
     </div>
