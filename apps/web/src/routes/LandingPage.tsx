@@ -36,7 +36,7 @@ export function LandingPage() {
           </div>
 
           <p className="text-2xl md:text-3xl font-medium mb-6 text-base-content/80">
-            Where your team comes together
+            Real Events, Real People
           </p>
 
           <p className="text-lg md:text-xl mb-12 text-base-content/60 max-w-3xl mx-auto leading-relaxed">
