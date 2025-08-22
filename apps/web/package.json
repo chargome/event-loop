@@ -11,7 +11,11 @@
     "preview": "vite preview --port 5173",
     "pages:dev": "wrangler pages dev dist --local",
     "pages:deploy": "npm run build && wrangler pages deploy dist",
-    "pages:deploy:production": "npm run build && wrangler pages deploy dist --prod"
+    "pages:deploy:production": "npm run build && wrangler pages deploy dist --prod",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.8.2",
@@ -24,12 +28,19 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.21",
     "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "jsdom": "^25.0.1",
     "tailwindcss": "^4.1.12",
     "typescript": "^5.5.4",
     "vite": "^5.4.2",
+    "vitest": "^2.1.8",
     "wrangler": "^4.31.0"
   }
 }
